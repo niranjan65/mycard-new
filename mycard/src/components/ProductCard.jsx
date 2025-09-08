@@ -1,0 +1,210 @@
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { FaHeart, FaRegHeart, FaStar } from 'react-icons/fa';
+import { addToCart, addToWishlist, removeFromWishlist } from '../store/slices/cartSlice';
+import { COLORS } from '../constants/colors';
+
+const ProductCard = ({ product }) => {
+  const dispatch = useDispatch();
+  const { wishlist } = useSelector(state => state.cart);
+  
+  const isInWishlist = wishlist.some(item => item.name === product.name);
+
+  const handleAddToCart = (e) => {
+    e.preventDefault();
+    dispatch(addToCart(product));
+  };
+
+  const handleWishlistToggle = (e) => {
+    e.preventDefault();
+    if (isInWishlist) {
+      dispatch(removeFromWishlist(product.name));
+    } else {
+      dispatch(addToWishlist(product));
+    }
+  };
+
+  return (
+    <Link to={`/product/${product.name}`} style={{
+      textDecoration: 'none',
+      color: 'inherit'
+    }}>
+      <div style={{
+        backgroundColor: COLORS.white,
+        borderRadius: '12px',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+        overflow: 'hidden',
+        transition: 'all 0.3s ease',
+        cursor: 'pointer',
+        position: 'relative',
+        height: '400px',
+        display: 'flex',
+        flexDirection: 'column'
+      }}>
+        {/* Product Image */}
+        <div style={{
+          position: 'relative',
+          height: '220px',
+          overflow: 'hidden'
+        }}>
+          <img 
+            src={product.image || 'https://via.placeholder.com/300x220'} 
+            alt={product.item_name}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              transition: 'transform 0.3s ease'
+            }}
+            onMouseOver={(e) => e.target.style.transform = 'scale(1.05)'}
+            onMouseOut={(e) => e.target.style.transform = 'scale(1)'}
+          />
+          
+          {/* Wishlist Button */}
+          <button 
+            onClick={handleWishlistToggle}
+            style={{
+              position: 'absolute',
+              top: '12px',
+              right: '12px',
+              backgroundColor: COLORS.white,
+              border: 'none',
+              borderRadius: '50%',
+              width: '40px',
+              height: '40px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+              transition: 'all 0.3s ease'
+            }}
+          >
+            {isInWishlist ? (
+              <FaHeart color={COLORS.error} size={18} />
+            ) : (
+              <FaRegHeart color={COLORS.gray} size={18} />
+            )}
+          </button>
+
+          {/* Discount Badge */}
+          <div style={{
+            position: 'absolute',
+            top: '12px',
+            left: '12px',
+            backgroundColor: COLORS.error,
+            color: COLORS.white,
+            padding: '4px 8px',
+            borderRadius: '6px',
+            fontSize: '12px',
+            fontWeight: 'bold'
+          }}>
+            20% OFF
+          </div>
+        </div>
+        
+        {/* Product Info */}
+        <div style={{
+          padding: '16px',
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between'
+        }}>
+          <div>
+            <h3 style={{
+              margin: '0 0 8px 0',
+              fontSize: '16px',
+              fontWeight: '600',
+              color: COLORS.textPrimary,
+              lineHeight: '1.4',
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden'
+            }}>
+              {product.item_name}
+            </h3>
+            
+            {/* Rating */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              marginBottom: '12px'
+            }}>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                backgroundColor: COLORS.success,
+                padding: '2px 6px',
+                borderRadius: '4px',
+                marginRight: '8px'
+              }}>
+                <FaStar color={COLORS.white} size={12} />
+                <span style={{
+                  color: COLORS.white,
+                  fontSize: '12px',
+                  fontWeight: 'bold',
+                  marginLeft: '4px'
+                }}>4.2</span>
+              </div>
+              <span style={{
+                color: COLORS.gray,
+                fontSize: '12px'
+              }}>(150 reviews)</span>
+            </div>
+            
+            {/* Price */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              marginBottom: '12px',
+              flexWrap: 'wrap',
+              gap: '8px'
+            }}>
+              <span style={{
+                fontSize: '20px',
+                fontWeight: 'bold',
+                color: COLORS.textPrimary
+              }}>₹{product.standard_rate}</span>
+              <span style={{
+                fontSize: '16px',
+                color: COLORS.gray,
+                textDecoration: 'line-through'
+              }}>₹{Math.round(product.standard_rate * 1.25)}</span>
+              <span style={{
+                fontSize: '12px',
+                color: COLORS.success,
+                fontWeight: 'bold'
+              }}>20% off</span>
+            </div>
+          </div>
+          
+          {/* Add to Cart Button */}
+          <button 
+            onClick={handleAddToCart}
+            style={{
+              width: '100%',
+              backgroundColor: COLORS.primary,
+              color: COLORS.white,
+              border: 'none',
+              borderRadius: '8px',
+              padding: '12px',
+              fontSize: '14px',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              transition: 'background-color 0.3s ease'
+            }}
+            onMouseOver={(e) => e.target.style.backgroundColor = COLORS.primaryDark}
+            onMouseOut={(e) => e.target.style.backgroundColor = COLORS.primary}
+          >
+            Add to Cart
+          </button>
+        </div>
+      </div>
+    </Link>
+  );
+};
+
+export default ProductCard;
