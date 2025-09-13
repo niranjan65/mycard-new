@@ -28,7 +28,7 @@ const GroupList = () => {
 
                     {
                         channelsData && channelsData.message.channels.map((channel, index) => (
-                            <div key={index} onClick={() => window.location.href = `https://mycardpng.com/raven/New%20admin%20office%20construction/${channel.name}`} className='w-full flex items-center gap-2 p-3 cursor-pointer hover:bg-gray-100'>
+                            <div key={index} onClick={() => window.location.href = `https://mycard.anantdv.com/raven/New%20admin%20office%20construction/${channel.name}`} className='w-full flex items-center gap-2 p-3 cursor-pointer hover:bg-gray-100'>
                                 <div className='bg-blue-500 text-white flex items-center justify-center rounded-full h-10 w-10'>{channel.channel_name[0].toUpperCase()}</div>
                                 <p>{channel.channel_name}</p>
                             </div>

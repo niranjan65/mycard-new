@@ -495,6 +495,11 @@ const ProductsPage = () => {
     );
   }
 
+
+  useEffect(() => {
+    console.log('Filtered Products: from use effect');
+  }, []);
+
   return (
     <div style={{
       backgroundColor: '#FFFFFF',

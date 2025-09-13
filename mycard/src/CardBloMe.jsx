@@ -9,13 +9,19 @@ import Form5 from './from5.jsx';
 import Modal from './Modal';
 import Cookies from 'js-cookie';
 import { toast } from 'sonner';
-import { useFrappeGetDoc } from 'frappe-react-sdk';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchCardBloMePage1 } from './store/slices/cardBloMePage1Slice';
 
 const CardBloMe = () => {
   const [currentForm, setCurrentForm] = useState(1);
   const [isSaving, setIsSaving] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasSaved, setHasSaved] = useState({ 1: false, 2: false, 3: false, 4: false });
+  const [isFormSubmitted, setIsFormSubmitted] = useState(false);
+
+  
+  
+
   // const [cardData, setCardBloMeData] = useState(null);
 
   const countries = useMemo(() => [
@@ -188,65 +194,93 @@ const CardBloMe = () => {
   const [modalMessage, setModalMessage] = useState('');
   const [modalType, setModalType] = useState('success');
 
-  const current_user = Cookies.get('user_id');
+  // const current_user = Cookies.get('user_id');
   const userImage = Cookies.get('user_image')
 
   const [userData, setUserData] = useState(null);
   const [cardData, setCardData] = useState(null);
 
+  const dispatch = useDispatch();
+  const { data } = useSelector((state) => state.cardBloMePage1);
+  const { currentUser, loading, error } = useSelector((state) => state.user);
+
+
+  console.log("Card Blo Me Page1 Data from Redux:", data);
+
+  
+
+  const docName = currentUser?.card_blo_me_number;
+
   useEffect(() => {
-    if (!current_user) return;
-    fetch(`/api/resource/User/${current_user}`, {
-      headers: { "Accept": "application/json" }
-    })
-    .then(res => res.json())
-    .then(data => {
-      setUserData(data.data);
-      if(!data.data.card_blo_me_number) {
-        setCardData(prev => ({
-      ...prev,
-      ...{
+    if (docName) {
+      dispatch(fetchCardBloMePage1(docName));
+    }
+  }, [dispatch, docName]);
+
+  useEffect(() => {
+    if (data) {
+      setCardData(data);
+    }
+  },[data])
+
+  // useEffect(() => {
+   
+  //   fetch(`/api/resource/User/${current_user}`, {
+  //     headers: {
+  //        "Accept": "application/json",
+  //        'Authorization': 'token 508b6fa8bc5d7b1:bb4df2c976ee21c',
+  //        },
+  //       credentials: "omit"
+  //   })
+  //   .then(res => res.json())
+  //   .then(data => {
+  //     setUserData(data.data);
+  //     if(!data.data.card_blo_me_number) {
+  //       setCardData(prev => ({
+  //     ...prev,
+  //     ...{
         
-        first_name: data?.data?.first_name || '',
-        middle_name: data?.data?.middle_name || '',
-        last_name: data?.data?.last_name || '',
-        gender: data?.data?.gender || '',
-        date_of_birth: data?.data?.birth_date || '' 
-      },
-    }));
-      }
-      return fetch(`/api/resource/Card%20Blo%20Me%20Page1/${data.data.card_blo_me_number}`, {
-        headers: { "Accept": "application/json" }
-      });
-    })
-    .then(res => res.json())
-    .then(cardData => setCardData(cardData.data));
-  }, [current_user]);
-    
-    
-    
+  //       first_name: data?.data?.first_name || '',
+  //       middle_name: data?.data?.middle_name || '',
+  //       last_name: data?.data?.last_name || '',
+  //       gender: data?.data?.gender || '',
+  //       date_of_birth: data?.data?.birth_date || '' 
+  //     },
+  //   }));
+  //     }
+  //     return fetch(`/api/resource/Card%20Blo%20Me%20Page1/${data.data.card_blo_me_number}`, {
+  //       headers: {
+  //          "Accept": "application/json",
+  //          'Authorization': 'token 508b6fa8bc5d7b1:bb4df2c976ee21c',
+  //          },
+  //          credentials: "omit"
+  //     });
+  //   })
+  //   .then(res => res.json())
+  //   .then(cardData => setCardData(cardData.data));
+  // }, []);
 
   const [formData, setFormData] = useState({
     naming_series: 'CBM-',
     status: 'Drafted',
     inactive_date: '',
     inactive_reason: '',
-    title: '',
+    title: cardData?.title || '',
     first_name: cardData?.first_name || '',
     middle_name: cardData?.middle_name || '',
     last_name: cardData?.last_name || '',
     gender: cardData?.gender || '',
     date_of_birth: cardData?.date_of_birth || '',
     blood_group: cardData?.blood_group || '',
-    resident_status: '',
-    portion_nolot_no: '',
-    village: '',
-    town: '',
+    resident_status: cardData?.resident_status || '',
+    portion_nolot_no: cardData?.portion_nolot_no || '',
+    village: cardData?.village || '',
+    town: cardData?.town || '',
     district: cardData?.district || '',
-    province: '',
+    province: cardData?.province || '',
     country: cardData?.country || 'Papua New Guinea',
-    po_box: '',
-    postal_code: '',
+    po_box: cardData?.po_box || '',
+    postal_code: cardData?.postal_code || '',
     portion_lot_no: '',
     village_street: '',
     town1: '',
@@ -256,7 +290,7 @@ const CardBloMe = () => {
     po_box1: '',
     postal_code1: '',
     personal_country_code: '+675',
-    phone_no: '',
+    phone_no: cardData?.phone_no || '',
     personal_email_address: '',
     office_country_code: '+675',
     mobile_no: cardData?.mobile_no || '',
@@ -396,7 +430,8 @@ const CardBloMe = () => {
         hospital_name: cardData.hospital_name || '',
         district2: cardData.district2 || '',
         location: cardData.location || '',
-        qr_code: cardData.qr_code || ''
+        qr_code: cardData.qr_code || '',
+        title: cardData.title || '',
         // Add more fields as needed...
       },
     }));
@@ -607,7 +642,7 @@ const CardBloMe = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'token b1c76d08aa8f177:5b0d80f9e2e2e48',
+          'Authorization': 'token 508b6fa8bc5d7b1:bb4df2c976ee21c',
         },
         credentials: "omit",
         body: JSON.stringify(erpNextPayload1),
@@ -635,7 +670,7 @@ const CardBloMe = () => {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'token b1c76d08aa8f177:5b0d80f9e2e2e48',
+          'Authorization': 'token 508b6fa8bc5d7b1:bb4df2c976ee21c',
         },
         credentials: "omit",
         body: JSON.stringify(card_blome_payload),
@@ -714,11 +749,11 @@ const CardBloMe = () => {
         blo_me_no: formData.blo_me_no,
       };
 
-      const response2 = await fetch('https://mycard.anantdv.com/api/resource/Card Blo Me Page2', {
+      const response2 = await fetch('/api/resource/Card Blo Me Page2', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'token b1c76d08aa8f177:5b0d80f9e2e2e48',
+          'Authorization': 'token 508b6fa8bc5d7b1:bb4df2c976ee21c',
         },
         credentials: "omit",
         body: JSON.stringify(erpNextPayload2),
@@ -788,11 +823,11 @@ const CardBloMe = () => {
         signature: formData.signature,
       };
 
-      const response3 = await fetch('https://mycard.anantdv.com/api/resource/Card Blo Me Page3', {
+      const response3 = await fetch('/api/resource/Card Blo Me Page3', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'token b1c76d08aa8f177:5b0d80f9e2e2e48',
+          'Authorization': 'token 508b6fa8bc5d7b1:bb4df2c976ee21c',
         },
         credentials: "omit",
         body: JSON.stringify(erpNextPayload3),
@@ -839,11 +874,11 @@ const CardBloMe = () => {
         frequency_of_beteinut: formData.frequency_of_beteinut,
       };
 
-      const response4 = await fetch('https://mycard.anantdv.com/api/resource/Card Blo Me Page 4', {
+      const response4 = await fetch('/api/resource/Card Blo Me Page 4', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'token b1c76d08aa8f177:5b0d80f9e2e2e48',
+          'Authorization': 'token 508b6fa8bc5d7b1:bb4df2c976ee21c',
         },
         credentials: "omit",
         body: JSON.stringify(erpNextPayload4),
@@ -871,6 +906,8 @@ const CardBloMe = () => {
       setModalMessage(`Customer Created Successfully`);
       setModalType('success');
       setModalVisible(true);
+      setIsFormSubmitted(true);
+
 
     } catch (error) {
       console.error("Submission error:", error);
@@ -2674,7 +2711,7 @@ const handlePrint = useCallback(() => {
   return (
     <>
       <div className="main-container">
-        <div className="form-navigation">
+        {/* <div className="form-navigation">
           {forms.map(form => (
             <button
               key={form.id}
@@ -2685,7 +2722,23 @@ const handlePrint = useCallback(() => {
               <span>{form.name}</span>
             </button>
           ))}
-        </div>
+        </div> */}
+
+        <div className="form-navigation">
+  {forms
+    .filter(form => !isFormSubmitted ? true : form.id === 5) // show all before submit, only Final Review after
+    .map(form => (
+      <button
+        key={form.id}
+        onClick={() => setCurrentForm(form.id)}
+        className={`form-nav-btn ${currentForm === form.id ? 'active' : 'inactive'}`}
+      >
+        <span style={{ fontSize: '1.1rem' }}>{form.icon}</span>
+        <span>{form.name}</span>
+      </button>
+    ))}
+</div>
+
 
         <div className="progress-container">
           <div className="progress-header">
@@ -2712,6 +2765,19 @@ const handlePrint = useCallback(() => {
             >
               ← Previous
             </button>
+
+            {isFormSubmitted && (
+  <button
+    type="button"
+    className="btn btn-edit"
+    onClick={() => {
+      setIsFormSubmitted(false);
+      setCurrentForm(1);
+    }}
+  >
+    ✏️ Edit
+  </button>
+)}
 
             {currentForm < 5 ? (
               <div className="action-buttons">
@@ -2761,13 +2827,13 @@ const handlePrint = useCallback(() => {
                 >
                   🖨️ Print Application
                 </button>
-                <button
+               {!isFormSubmitted && <button
                   type="submit"
                   disabled={isSubmitting}
                   className="btn btn-submit"
                 >
                   {isSubmitting ? 'Submitting...' : '🚀 Submit Application'}
-                </button>
+                </button>}
               </div>
             )}
           </div>

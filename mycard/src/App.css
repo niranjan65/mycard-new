@@ -1319,6 +1319,8 @@ body::before {
   animation: slideInUp 0.8s ease-out;
 }
 
+
+
 /* Responsive Design */
 @media (max-width: 1024px) {
   .main-container {
@@ -1524,4 +1526,41 @@ body::before {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+
+@theme {
+  --color-blue-500: #3b82f6;
+  --color-blue-700: #1d4ed8;
+  --color-blue-900: #1e40af;
+  --color-white: #ffffff;
+  --color-blue-300: #93c5fd;
+}
+
+/* Morphing blue blobs */
+@keyframes morph {
+  0%, 100% {
+    border-radius: 40% 60% 60% 40% / 50% 40% 60% 50%;
+  }
+  50% {
+    border-radius: 60% 40% 50% 60% / 45% 60% 40% 50%;
+  }
+}
+
+.morphing-blob {
+  animation: morph 10s ease-in-out infinite;
+}
+
+/* Glowing animation for button */
+@keyframes glow {
+  0%, 100% {
+    box-shadow: 0 0 8px var(--color-blue-500);
+  }
+  50% {
+    box-shadow: 0 0 20px var(--color-blue-500);
+  }
+}
+
+.glow {
+  animation: glow 1.5s infinite;
 }

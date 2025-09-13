@@ -1,0 +1,58 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-03-31 00:32:32.918980",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "children_name",
+  "spouse_name",
+  "crm_no",
+  "age"
+ ],
+ "fields": [
+  {
+   "columns": 4,
+   "fieldname": "children_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Children Name"
+  },
+  {
+   "columns": 4,
+   "fieldname": "spouse_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": " Father's/Mother's Name"
+  },
+  {
+   "columns": 1,
+   "fieldname": "crm_no",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "CRM ID",
+   "options": "Prospect Details"
+  },
+  {
+   "columns": 1,
+   "fieldname": "age",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Age"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-04-07 18:21:50.120748",
+ "modified_by": "Administrator",
+ "module": "Mycard",
+ "name": "CRM Details of Children",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

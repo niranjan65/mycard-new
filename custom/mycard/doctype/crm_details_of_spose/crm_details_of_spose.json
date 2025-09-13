@@ -1,0 +1,50 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-03-31 00:40:18.469469",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "name1",
+  "crm_no",
+  "age"
+ ],
+ "fields": [
+  {
+   "columns": 5,
+   "fieldname": "name1",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Name"
+  },
+  {
+   "columns": 2,
+   "fieldname": "crm_no",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "CRM ID",
+   "options": "Prospect Details"
+  },
+  {
+   "columns": 2,
+   "fieldname": "age",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Age"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-04-07 18:21:37.886900",
+ "modified_by": "Administrator",
+ "module": "Mycard",
+ "name": "CRM Details of Spose",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

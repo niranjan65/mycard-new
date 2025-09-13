@@ -1,0 +1,100 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "AC.####",
+ "creation": "2025-04-01 16:39:16.432272",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_libq",
+  "announcements",
+  "image",
+  "video",
+  "user_details",
+  "user_name",
+  "user",
+  "image_url",
+  "media_type",
+  "likes"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_libq",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "announcements",
+   "fieldtype": "Small Text",
+   "label": "Announcements"
+  },
+  {
+   "fieldname": "image",
+   "fieldtype": "Attach Image",
+   "label": "Image"
+  },
+  {
+   "fieldname": "user_details",
+   "fieldtype": "Table",
+   "label": "User Details",
+   "options": "Announcement Profile Detail"
+  },
+  {
+   "fieldname": "user_name",
+   "fieldtype": "Data",
+   "label": "User Name"
+  },
+  {
+   "fieldname": "image_url",
+   "fieldtype": "Attach Image",
+   "label": "Image Url"
+  },
+  {
+   "fieldname": "likes",
+   "fieldtype": "Table",
+   "label": "Likes",
+   "options": "Announcement Likes"
+  },
+  {
+   "fieldname": "video",
+   "fieldtype": "Attach",
+   "label": "Video"
+  },
+  {
+   "fieldname": "media_type",
+   "fieldtype": "Select",
+   "label": "Media Type",
+   "options": "\nimage\nvideo"
+  },
+  {
+   "fieldname": "user",
+   "fieldtype": "Link",
+   "label": "user",
+   "options": "User"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-05-30 21:20:57.452102",
+ "modified_by": "Administrator",
+ "module": "Mycard",
+ "name": "Announcements",
+ "naming_rule": "Expression (old style)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

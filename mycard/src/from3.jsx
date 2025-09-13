@@ -485,7 +485,7 @@ const Form3 = memo(({ formData, handleChange, countries }) => {
 
 
       
-      {/* <div style={{ marginTop: '2rem' }}>
+      <div style={{ marginTop: '2rem' }}>
             
             <div className="table-section">
               <div className="table-header">
@@ -584,7 +584,7 @@ const Form3 = memo(({ formData, handleChange, countries }) => {
             </div>
 
             
-          </div> */}
+          </div>
     </div>
 
     {/* Declaration */}

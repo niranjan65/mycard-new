@@ -1,7 +1,11 @@
-import React, { memo } from 'react';
+import React, { memo, useEffect } from 'react';
 
 // Form 1 Component (Personal Information) - Memoized
-const Form1 = memo(({ formData, handleChange, countries }) => (
+const Form1 = memo(({ formData, handleChange, countries }) => {
+  useEffect(() => {
+    console.log('formData:', formData);
+  }, [formData]);
+  return (
   <div>
     {/* Basic Information (hidden) */}
     <div className="section-card" style={{ display: 'none' }}>
@@ -506,6 +510,7 @@ const Form1 = memo(({ formData, handleChange, countries }) => (
       </div>
     </div>
   </div>
-));
+)
+});
 
 export default Form1;

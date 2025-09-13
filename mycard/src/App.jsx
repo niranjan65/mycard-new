@@ -2,6 +2,7 @@
 import { FrappeProvider } from 'frappe-react-sdk'
 import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom'
 import { Button } from './components/ui/button'
+import PatientNotFoundPage  from './pages/PatientNotFound'
 import Navbar from './pages/Navbar'
 import Home from './pages/Home'
 import Signup from './pages/Signup'
@@ -176,6 +177,7 @@ const currentUser = Cookies.get('user_id');
             </ProtectedRoute>
           }
         />
+         <Route path="/patient-not-found" element={<PatientNotFoundPage />} />
         <Route path="/profile/:id" element={<ProspectDetailsDisplay />} />
         <Route path="/comments/:id" element={<Comments />} />
         <Route path="/edit-profile" element={<EditProfile />} />
@@ -236,8 +238,41 @@ const currentUser = Cookies.get('user_id');
 
 
 function App() {
+if (import.meta.env.DEV) {
+  fetch('/api/method/scope.www.scope.get_context_for_dev', {
+    method: 'POST',
+  })
+    .then(response => response.json())
+    .then((values) => {
+      const v = JSON.parse(values.message)
+      //@ts-expect-error Adding Frappe to Window
+      if (!window.frappe) window.frappe = {};
+      //@ts-expect-error Adding Frappe to Window
+      window.frappe.boot = v
+    }
+    )
+}
+  const getSiteName = () => {
+    // @ts-ignore
+    if (window.frappe?.boot?.versions?.frappe.startsWith('14')) {
+      return import.meta.env.VITE_SITE_NAME
+    }
+    // @ts-ignore
+    else {
+      // @ts-ignore
+      return window.frappe?.boot?.sitename ?? import.meta.env.VITE_SITE_NAME
+    }
+  }
   return (
-    <FrappeProvider socketPort={import.meta.env.VITE_SOCKET_PORT ?? ''}>
+    <FrappeProvider
+     socketPort={import.meta.env.VITE_SOCKET_PORT ?? ''}
+    
+      // swrConfig={{
+      //   errorRetryCount: 2,
+      //   provider: localStorageProvider
+      // }}
+      // siteName={getSiteName()}
+     >
       <BrowserRouter basename={import.meta.env.VITE_BASE_PATH}>
         <Toaster richColors />
         <Routes>
@@ -250,7 +285,8 @@ function App() {
             path="/*"
             element={
               <div className="min-h-screen w-screen bg-gray-50 flex p-3">
-                <Sidebar />
+                
+                 <Sidebar />
                 <Layout />
               </div>
             }
@@ -262,6 +298,56 @@ function App() {
     </FrappeProvider>
   );
 }
+
+function localStorageProvider() {
+  // When initializing, we restore the data from `localStorage` into a map.
+  // Check if local storage is recent (less than a week). Else start with a fresh cache.
+  const timestamp = localStorage.getItem('app-cache-timestamp');
+  let cache = '[]';
+  if (timestamp && Date.now() - parseInt(timestamp, 10) < 7 * 24 * 60 * 60 * 1000) {
+    const localCache = localStorage.getItem('app-cache');
+    if (localCache) {
+      cache = localCache;
+    }
+  }
+  const map = new Map(JSON.parse(cache));
+
+  // Before unloading the app, we write back all the data into `localStorage`.
+  window.addEventListener('beforeunload', () => {
+    // Check if the user is logged in
+    const user_id = Cookies.get('user_id');
+    if (!user_id || user_id === 'Guest') {
+      localStorage.removeItem('app-cache');
+      localStorage.removeItem('app-cache-timestamp');
+    } else {
+      const entries = map.entries();
+      const cacheEntries = [];
+
+      for (const [key, value] of entries) {
+        let hasCacheKey = false;
+        for (const cacheKey of CACHE_KEYS) {
+          if (key.includes(cacheKey)) {
+            hasCacheKey = true;
+            break;
+          }
+        }
+
+        // Cache only the keys that are in CACHE_KEYS
+        if (hasCacheKey) {
+          cacheEntries.push([key, value]);
+        }
+      }
+
+      const appCache = JSON.stringify(cacheEntries);
+      localStorage.setItem('app-cache', appCache);
+      localStorage.setItem('app-cache-timestamp', Date.now().toString());
+    }
+  });
+
+  // We still use the map for write & read for performance.
+  return map;
+}
+
 
 
 export default App

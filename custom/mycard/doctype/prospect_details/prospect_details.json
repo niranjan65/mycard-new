@@ -1,0 +1,616 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:{naming_series}{#######}",
+ "creation": "2025-03-31 00:31:41.844139",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "status",
+  "inactive_date",
+  "inactive_document_no",
+  "profile_image",
+  "column_break_3",
+  "inacive_reason",
+  "section_break_7",
+  "title",
+  "first_name",
+  "middle_name",
+  "last_name",
+  "date_of_birth",
+  "column_break_14",
+  "gender",
+  "nationility",
+  "resident_status",
+  "marital_status",
+  "origin",
+  "engagement_with_lbl_section",
+  "shareholder",
+  "no_of_shares",
+  "investor",
+  "investment",
+  "client",
+  "client_no",
+  "business_partner",
+  "column_break_25",
+  "sub_contractor",
+  "sub_contractor_id",
+  "supplier",
+  "supplier_no",
+  "employee",
+  "employee_code",
+  "general_member",
+  "permanent_address_section",
+  "portion_nolot_no",
+  "villagestreet",
+  "town",
+  "district",
+  "column_break_24",
+  "province",
+  "country",
+  "po_box",
+  "postal_code",
+  "current_location__correspondence_address_section",
+  "portion_lot_no",
+  "village_street",
+  "town1",
+  "district1",
+  "column_break_34",
+  "province1",
+  "country1",
+  "po_box1",
+  "postal_code1",
+  "contact_number_section",
+  "office_no",
+  "home",
+  "column_break_42",
+  "mobile_no",
+  "email_id_section",
+  "office_email",
+  "column_break_46",
+  "personal_email",
+  "preferd_securd_communication_section",
+  "phone_no",
+  "column_break_50",
+  "email_id",
+  "section_break_52",
+  "dd",
+  "identification_type",
+  "bank_account_details_section",
+  "table_64",
+  "employment_details_section",
+  "table_66",
+  "section_break_71",
+  "healthcare_information_section",
+  "details_of_spose",
+  "details_of_children",
+  "next_of_kin_section",
+  "name1",
+  "relationship",
+  "column_break_99",
+  "crm_no",
+  "qr_code",
+  "issue_date",
+  "expiry_date",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "CRM ID",
+   "options": "CRM-"
+  },
+  {
+   "default": "Drafted",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "\nActive\nInactive\nSuspended\nRejected\nDrafted",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "inactive_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Inactive Date"
+  },
+  {
+   "fieldname": "inactive_document_no",
+   "fieldtype": "Data",
+   "label": "Inactive Document No"
+  },
+  {
+   "fieldname": "profile_image",
+   "fieldtype": "Attach Image",
+   "ignore_user_permissions": 1,
+   "label": "Profile Image"
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "inacive_reason",
+   "fieldtype": "Small Text",
+   "label": "Inactive Reason"
+  },
+  {
+   "fieldname": "section_break_7",
+   "fieldtype": "Section Break",
+   "label": "Basic Details"
+  },
+  {
+   "fieldname": "title",
+   "fieldtype": "Select",
+   "label": "Title",
+   "options": "\nMr.\nMrs.\nMiss."
+  },
+  {
+   "fieldname": "first_name",
+   "fieldtype": "Data",
+   "label": "First Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "middle_name",
+   "fieldtype": "Data",
+   "label": "Middle Name"
+  },
+  {
+   "fieldname": "last_name",
+   "fieldtype": "Data",
+   "label": "Last Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "date_of_birth",
+   "fieldtype": "Datetime",
+   "label": "Date of Birth",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_14",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "gender",
+   "fieldtype": "Select",
+   "label": "Gender",
+   "options": "\nMale\nFemale\nNon-Binary\nTransgender\nPrefer Not To Say",
+   "reqd": 1
+  },
+  {
+   "fieldname": "nationility",
+   "fieldtype": "Data",
+   "label": "Nationility",
+   "reqd": 1
+  },
+  {
+   "fieldname": "resident_status",
+   "fieldtype": "Select",
+   "label": "Resident Status",
+   "options": "\nResident\nNon-Resident"
+  },
+  {
+   "fieldname": "marital_status",
+   "fieldtype": "Select",
+   "label": "Marital Status",
+   "options": "\nMarried\nUnmarried\nWidow\nDivorcee",
+   "reqd": 1
+  },
+  {
+   "fieldname": "origin",
+   "fieldtype": "Data",
+   "label": "Origin",
+   "reqd": 1
+  },
+  {
+   "fieldname": "engagement_with_lbl_section",
+   "fieldtype": "Section Break",
+   "label": "Engagement with LBL"
+  },
+  {
+   "default": "0",
+   "fieldname": "shareholder",
+   "fieldtype": "Check",
+   "label": "Shareholder"
+  },
+  {
+   "fieldname": "no_of_shares",
+   "fieldtype": "Data",
+   "label": "No. of Shares",
+   "mandatory_depends_on": "shareholder"
+  },
+  {
+   "default": "0",
+   "fieldname": "investor",
+   "fieldtype": "Check",
+   "label": " Investor"
+  },
+  {
+   "fieldname": "investment",
+   "fieldtype": "Data",
+   "label": "Investment",
+   "mandatory_depends_on": "investor"
+  },
+  {
+   "default": "0",
+   "fieldname": "client",
+   "fieldtype": "Check",
+   "label": "Client"
+  },
+  {
+   "depends_on": "client",
+   "fieldname": "client_no",
+   "fieldtype": "Data",
+   "label": "Client No"
+  },
+  {
+   "default": "0",
+   "fieldname": "business_partner",
+   "fieldtype": "Check",
+   "label": "Business Partner"
+  },
+  {
+   "fieldname": "column_break_25",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "sub_contractor",
+   "fieldtype": "Check",
+   "label": "Sub Contractor"
+  },
+  {
+   "depends_on": "sub_contractor",
+   "fieldname": "sub_contractor_id",
+   "fieldtype": "Data",
+   "label": "Sub Contractor ID"
+  },
+  {
+   "default": "0",
+   "fieldname": "supplier",
+   "fieldtype": "Check",
+   "label": "Supplier"
+  },
+  {
+   "depends_on": "supplier",
+   "fieldname": "supplier_no",
+   "fieldtype": "Data",
+   "label": "Supplier No"
+  },
+  {
+   "default": "0",
+   "fieldname": "employee",
+   "fieldtype": "Check",
+   "label": "Employee"
+  },
+  {
+   "depends_on": "employee",
+   "fieldname": "employee_code",
+   "fieldtype": "Data",
+   "label": "Employee Code"
+  },
+  {
+   "default": "0",
+   "fieldname": "general_member",
+   "fieldtype": "Check",
+   "label": "General Member"
+  },
+  {
+   "fieldname": "permanent_address_section",
+   "fieldtype": "Section Break",
+   "label": "Permanent Address"
+  },
+  {
+   "fieldname": "portion_nolot_no",
+   "fieldtype": "Data",
+   "label": "Portion No/Lot No",
+   "reqd": 1
+  },
+  {
+   "fieldname": "villagestreet",
+   "fieldtype": "Data",
+   "label": "Village/Street",
+   "reqd": 1
+  },
+  {
+   "fieldname": "town",
+   "fieldtype": "Data",
+   "label": "Town"
+  },
+  {
+   "fieldname": "district",
+   "fieldtype": "Data",
+   "label": "District"
+  },
+  {
+   "fieldname": "column_break_24",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "province",
+   "fieldtype": "Data",
+   "label": "Province"
+  },
+  {
+   "fieldname": "country",
+   "fieldtype": "Link",
+   "label": "Country",
+   "options": "Country",
+   "reqd": 1
+  },
+  {
+   "fieldname": "po_box",
+   "fieldtype": "Data",
+   "label": "PO Box"
+  },
+  {
+   "fieldname": "postal_code",
+   "fieldtype": "Data",
+   "label": "Postal Code",
+   "reqd": 1
+  },
+  {
+   "fieldname": "current_location__correspondence_address_section",
+   "fieldtype": "Section Break",
+   "label": "Current Location / Correspondence Address"
+  },
+  {
+   "fieldname": "portion_lot_no",
+   "fieldtype": "Data",
+   "label": "Portion No/Lot No",
+   "reqd": 1
+  },
+  {
+   "fieldname": "village_street",
+   "fieldtype": "Data",
+   "label": "Village/Street",
+   "reqd": 1
+  },
+  {
+   "fieldname": "town1",
+   "fieldtype": "Data",
+   "label": "Town"
+  },
+  {
+   "fieldname": "district1",
+   "fieldtype": "Data",
+   "label": " District"
+  },
+  {
+   "fieldname": "column_break_34",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "province1",
+   "fieldtype": "Data",
+   "label": "Province"
+  },
+  {
+   "fieldname": "country1",
+   "fieldtype": "Link",
+   "label": "Country",
+   "options": "Country",
+   "reqd": 1
+  },
+  {
+   "fieldname": "po_box1",
+   "fieldtype": "Data",
+   "label": " PO Box"
+  },
+  {
+   "fieldname": "postal_code1",
+   "fieldtype": "Data",
+   "label": " Postal Code",
+   "reqd": 1
+  },
+  {
+   "fieldname": "contact_number_section",
+   "fieldtype": "Section Break",
+   "label": "Contact Number"
+  },
+  {
+   "fieldname": "office_no",
+   "fieldtype": "Data",
+   "label": "Office No"
+  },
+  {
+   "fieldname": "home",
+   "fieldtype": "Data",
+   "label": "Home"
+  },
+  {
+   "fieldname": "column_break_42",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "mobile_no",
+   "fieldtype": "Data",
+   "label": "Mobile No"
+  },
+  {
+   "fieldname": "email_id_section",
+   "fieldtype": "Section Break",
+   "label": "Email Id"
+  },
+  {
+   "fieldname": "office_email",
+   "fieldtype": "Data",
+   "label": "Office Email"
+  },
+  {
+   "fieldname": "column_break_46",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "personal_email",
+   "fieldtype": "Data",
+   "label": "Personal Email"
+  },
+  {
+   "fieldname": "preferd_securd_communication_section",
+   "fieldtype": "Section Break",
+   "label": "Preferred Secured Communication"
+  },
+  {
+   "fieldname": "phone_no",
+   "fieldtype": "Data",
+   "label": "Phone No"
+  },
+  {
+   "fieldname": "column_break_50",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "email_id",
+   "fieldtype": "Data",
+   "label": "Email Id"
+  },
+  {
+   "fieldname": "section_break_52",
+   "fieldtype": "Section Break",
+   "label": "Identification Details"
+  },
+  {
+   "fieldname": "dd",
+   "fieldtype": "Table",
+   "label": "Identification Details",
+   "options": "Identification Details"
+  },
+  {
+   "fieldname": "identification_type",
+   "fieldtype": "Table",
+   "label": "Biometric Details",
+   "options": "Identification Type"
+  },
+  {
+   "fieldname": "bank_account_details_section",
+   "fieldtype": "Section Break",
+   "label": "Bank Account Details"
+  },
+  {
+   "fieldname": "table_64",
+   "fieldtype": "Table",
+   "options": "Bank Account For CRM"
+  },
+  {
+   "fieldname": "employment_details_section",
+   "fieldtype": "Section Break",
+   "label": "Employment Details"
+  },
+  {
+   "fieldname": "table_66",
+   "fieldtype": "Data",
+   "options": "Employee External Work History"
+  },
+  {
+   "fieldname": "section_break_71",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "healthcare_information_section",
+   "fieldtype": "Section Break",
+   "label": "Healthcare Information"
+  },
+  {
+   "fieldname": "details_of_spose",
+   "fieldtype": "Table",
+   "label": "Details of Spouse",
+   "options": "CRM Details of Spose"
+  },
+  {
+   "fieldname": "details_of_children",
+   "fieldtype": "Table",
+   "label": "Details of Children",
+   "options": "CRM Details of Children"
+  },
+  {
+   "fieldname": "next_of_kin_section",
+   "fieldtype": "Section Break",
+   "label": "Next Of Kin"
+  },
+  {
+   "fieldname": "name1",
+   "fieldtype": "Data",
+   "label": "Name"
+  },
+  {
+   "fieldname": "relationship",
+   "fieldtype": "Select",
+   "label": "Relationship",
+   "options": "\nFather\nMother\nSpouse\nDaughter\nSon\nSister\nBrother"
+  },
+  {
+   "fieldname": "column_break_99",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "crm_no",
+   "fieldtype": "Data",
+   "label": " CRM ID",
+   "options": "\nProspect Details"
+  },
+  {
+   "fieldname": "qr_code",
+   "fieldtype": "Code",
+   "hidden": 1,
+   "label": " QR Code"
+  },
+  {
+   "fieldname": "issue_date",
+   "fieldtype": "Date",
+   "hidden": 1,
+   "label": "Issue Date"
+  },
+  {
+   "fieldname": "expiry_date",
+   "fieldtype": "Date",
+   "hidden": 1,
+   "label": "Expiry Date"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Prospect Details",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2025-04-07 18:05:58.390579",
+ "modified_by": "Administrator",
+ "module": "Mycard",
+ "name": "Prospect Details",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

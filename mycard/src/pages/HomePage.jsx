@@ -7,6 +7,31 @@ import { erpnextApi } from '../api/erpnextApi';
 import { COLORS } from '../constants/colors';
 
 const ProductsPage = () => {
+
+   const get_filtered_products_webshop = async() => {
+      const myHeaders = new Headers();
+myHeaders.append("Cookie", "full_name=Guest; sid=Guest; system_user=no; user_id=Guest; user_image=");
+
+const formdata = new FormData();
+formdata.append("query_args", "{\"field_filters\":{},\"attribute_filters\":{},\"item_group\":null,\"start\":null,\"from_filters\":false}");
+
+const requestOptions = {
+  method: "POST",
+  headers: myHeaders,
+  body: formdata,
+  redirect: "follow"
+};
+
+fetch("/api/method/webshop.webshop.api.get_product_filter_data", requestOptions)
+  .then((response) => response.json())
+  .then((result) => console.log(result))
+  .catch((error) => console.error(error));
+  }
+
+  useEffect(() => {
+    console.log("calling the function")
+    get_filtered_products_webshop();
+  }, []);
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const category = searchParams.get('category');
@@ -28,6 +53,10 @@ const ProductsPage = () => {
   const [newItems, setNewItems] = useState(false);
   const [selectedPriceRange, setSelectedPriceRange] = useState('');
   const [activeHomeCategory, setActiveHomeCategory] = useState('Electronics');
+
+
+
+  console.log("Home page rendered");
 
   // Professional Categories with Subcategories and Images
   const professionalCategories = [
@@ -700,6 +729,7 @@ const ProductsPage = () => {
     );
   }
 
+  
   // Homepage View with Sidebar
   if (showHomepageView) {
     const currentCategoryData = professionalCategories.find(cat => cat.name === activeHomeCategory);
@@ -995,6 +1025,12 @@ const ProductsPage = () => {
         return a.item_name.localeCompare(b.item_name);
     }
   });
+
+ 
+
+  
+
+  
 
   return (
     <div style={{

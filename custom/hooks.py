@@ -213,3 +213,5 @@ app_license = "MIT"
 # auth_hooks = [
 # 	"custom.auth.validate"
 # ]
+
+website_route_rules = [{'from_route': '/mycard/<path:app_path>', 'to_route': 'mycard'},]
