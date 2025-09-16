@@ -383,7 +383,7 @@ export default function Login() {
   const navigate = useNavigate()
 
   const { user, loading: userLoading, error: userError } = useSelector(
-    (state) => state.user // Adjust this path based on your store structure
+    (state) => state.user 
   );
 
   const onChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });

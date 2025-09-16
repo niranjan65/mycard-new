@@ -51,15 +51,19 @@ const Form4 = memo(({ formData, handleChange }) => (
         </div>
 
         <div className="field-wrapper">
-          <label className="field-label">Employee Type (Email/Website)</label>
+          <label className="field-label">Employee Type (Casual/Permanent)</label>
           <select
             className="field-select"
             value={formData.employee_type_emailwebsite}
             onChange={(e) => handleChange("employee_type_emailwebsite", e.target.value)}
           >
             <option value="">Select</option>
-            <option>Email</option>
-            <option>Website</option>
+            {/* <option>Email</option>
+            <option>Website</option> */}
+             <option>Casual</option>
+            <option>Permanent
+              permanent
+            </option>
           </select>
         </div>
       </div>

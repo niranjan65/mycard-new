@@ -571,7 +571,7 @@ const ProductDetailPage = () => {
         <h2>Product not found</h2>
         <p>The product you're looking for doesn't exist.</p>
         <button
-          onClick={() => navigate('/products')}
+          onClick={() => navigate('/trade')}
           style={{
             padding: '12px 24px',
             backgroundColor: '#0F1111',

@@ -31,6 +31,8 @@ import CheckoutPage from './pages/CheckoutPage'
 import Footer from './components/Footer'
 import Header from './components/Header'
 import { COLORS } from './constants/colors'
+import ComingSoon from './ComingSoon'
+import ComingSoonPage from './pages/ComingSoonPage'
 
 // const Layout = () => {
 //   const currentUser = Cookies.get('user_id');
@@ -211,6 +213,11 @@ const currentUser = Cookies.get('user_id');
             </ProtectedRoute>
           }
         />
+        <Route path="/academy" element={<ComingSoonPage />} />
+        <Route path="/legal" element={<ComingSoonPage />} />
+        <Route path="/career" element={<ComingSoonPage />} />
+        <Route path="/bank" element={<ComingSoonPage />} />
+
 
         {/* <div style={{
           minHeight: '100vh',
@@ -221,6 +228,7 @@ const currentUser = Cookies.get('user_id');
           {/* <main style={{ minHeight: 'calc(100vh - 200px)' }}> */}
             {/* <Routes> */}
               <Route path="/trade" element={<HomePage />} />
+              {/* <Route path="/trade" element={<ComingSoonPage />} /> */}
               <Route path="/products" element={<ProductsPage />} />
               <Route path="/product/:id" element={<ProductDetailPage />} />
               <Route path="/cart" element={<CartPage />} />

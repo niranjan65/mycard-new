@@ -346,7 +346,7 @@ const Header = () => {
     }
     
     const queryString = queryParams.length > 0 ? `?${queryParams.join('&')}` : '';
-    navigate(`/products${queryString}`);
+    navigate(`/trade${queryString}`);
   };
 
   // Handle Enter key press
@@ -572,7 +572,7 @@ const Header = () => {
           alignItems: 'center',
           gap: '32px'
         }}>
-          <Link to="/products" style={{
+          <a to="/trade" style={{
             color: COLORS.white,
             textDecoration: 'none',
             fontSize: '16px',
@@ -582,8 +582,8 @@ const Header = () => {
             transition: 'border-color 0.3s'
           }}>
             All Products
-          </Link>
-          <Link to="/products?category=Electronics" style={{
+          </a>
+          {/* <Link to="/products?category=Electronics" style={{
             color: COLORS.white,
             textDecoration: 'none',
             fontSize: '16px',
@@ -618,7 +618,7 @@ const Header = () => {
             padding: '8px 0'
           }}>
             Books
-          </Link>
+          </Link> */}
         </div>
       </nav>
     </header>

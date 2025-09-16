@@ -35,6 +35,9 @@ const cardBloMePage1Slice = createSlice({
       state.loading = false;
       state.error = null;
     },
+    updateCardBloMePage1: (state, action) => {
+      state.data = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -53,5 +56,6 @@ const cardBloMePage1Slice = createSlice({
   },
 });
 
-export const { resetCardBloMePage1 } = cardBloMePage1Slice.actions;
+export const { resetCardBloMePage1, updateCardBloMePage1 } = cardBloMePage1Slice.actions;
 export default cardBloMePage1Slice.reducer;
+

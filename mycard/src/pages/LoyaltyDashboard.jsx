@@ -522,11 +522,321 @@
 
 
 
+// import React, { useState, useEffect, useMemo } from 'react';
+// import { Gift, CreditCard, ArrowUpRight, Calendar, ChevronDown } from 'lucide-react';
+// import { Bar } from 'react-chartjs-2';
+// import 'chart.js/auto';
+// import { format, isWithinInterval, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear } from 'date-fns';
+
+// // Helper for date filtering
+// const filterByDate = (data, filterType, selectedDate) => {
+//   if (filterType === 'all' || !selectedDate) return data;
+//   const dateObj = new Date(selectedDate);
+//   let interval = null;
+//   switch (filterType) {
+//     case 'day':
+//       interval = { start: dateObj, end: dateObj };
+//       break;
+//     case 'week':
+//       interval = { start: startOfWeek(dateObj), end: endOfWeek(dateObj) };
+//       break;
+//     case 'month':
+//       interval = { start: startOfMonth(dateObj), end: endOfMonth(dateObj) };
+//       break;
+//     case 'year':
+//       interval = { start: startOfYear(dateObj), end: endOfYear(dateObj) };
+//       break;
+//     default:
+//       return data;
+//   }
+//   return data.filter(row =>
+//     isWithinInterval(
+//       new Date(row.posting_date),
+//       interval
+//     )
+//   );
+// };
+
+// // Aggregate loyalty points by day/month/year for chart
+// const aggregatePointsByPeriod = (data, period) => {
+//   const grouped = {};
+//   data.forEach(item => {
+//     let key = '';
+//     const date = new Date(item.posting_date);
+//     if (!item.posting_date) return; // skip if no date
+//     if (period === 'day') key = format(date, 'yyyy-MM-dd');
+//     else if (period === 'month') key = format(date, 'yyyy-MM');
+//     else if (period === 'year') key = format(date, 'yyyy');
+
+//     if (!grouped[key]) grouped[key] = 0;
+//     grouped[key] += item.loyalty_points || 0;
+//   });
+
+//   const labels = Object.keys(grouped).sort();
+//   const dataPoints = labels.map(label => grouped[label]);
+
+//   return { labels, dataPoints };
+// };
+
+// const LoyaltyDashboard = () => {
+//   const [loyaltyData, setLoyaltyData] = useState([]);
+//   const [selectedCustomer, setSelectedCustomer] = useState('Niranjan Singh');
+//   const [showDropdown, setShowDropdown] = useState(false);
+
+//   const [filterType, setFilterType] = useState('all'); // all, day, week, month, year
+//   const [selectedDate, setSelectedDate] = useState('');
+
+//   const getLoyaltyPointsEntryFromLbl = async () => {
+//     try {
+//       const myHeaders = new Headers();
+//       myHeaders.append("Authorization", "token e0723ce34466cea:79dca2f515d4e2c");
+//       myHeaders.append("Cookie", "full_name=Guest; sid=Guest; system_user=no; user_id=Guest; user_image=");
+//       const requestOptions = {
+//         method: "GET",
+//         headers: myHeaders,
+//         redirect: "follow"
+//       };
+
+//       const customerFilter = selectedCustomer === 'all' ? '' : selectedCustomer;
+
+//       // fetch(`https://lblerp.anantdv.com/api/resource/Loyalty Point Entry?fields=["*"]${customerFilter ? `&filters=[["customer", "=", "${customerFilter}"]]` : ''}`, requestOptions)
+//       fetch(`https://lblerp.anantdv.com/api/resource/Loyalty Point Entry?fields=["*"]${customerFilter ? `&filters=[["customer", "=", "${customerFilter}"]]` : ''}`, requestOptions)
+//         .then((response) => response.json())
+//         .then((result) => {
+//           setLoyaltyData(result.data);
+//         })
+//         .catch((error) => console.error(error));
+//     } catch (error) {}
+//   };
+
+
+//   console.log("loyalty data....", loyaltyData)
+
+//   useEffect(() => {
+//     getLoyaltyPointsEntryFromLbl();
+//     // eslint-disable-next-line
+//   }, [selectedCustomer]);
+
+//   const customers = useMemo(
+//     () => [...new Set(loyaltyData.map(item => item.customer))],
+//     [loyaltyData]
+//   );
+
+//   const filteredByDate = useMemo(
+//     () => filterByDate(loyaltyData, filterType, selectedDate),
+//     [loyaltyData, filterType, selectedDate]
+//   );
+
+//   const filteredData = useMemo(
+//     () => filteredByDate.filter(item => selectedCustomer === 'all' || item.customer === selectedCustomer),
+//     [filteredByDate, selectedCustomer]
+//   );
+
+//   const metrics = useMemo(() => {
+//     const totalPoints = filteredData.reduce((sum, item) => sum + (item.loyalty_points || 0), 0);
+//     const totalPurchase = filteredData.reduce((sum, item) => sum + (item.purchase_amount || 0), 0);
+//     const uniquePrograms = [...new Set(filteredData.map(item => item.loyalty_program))].length;
+//     return {
+//       totalPoints,
+//       totalPurchase,
+//       uniquePrograms,
+//       uniqueCustomers: [...new Set(filteredData.map(item => item.customer))].length
+//     };
+//   }, [filteredData]);
+
+//   const { labels, dataPoints } = useMemo(
+//     () => aggregatePointsByPeriod(filteredData, filterType === 'all' ? 'day' : filterType),
+//     [filteredData, filterType]
+//   );
+
+//   const chartData = {
+//     labels,
+//     datasets: [{
+//       label: 'Loyalty Points',
+//       data: dataPoints,
+//       backgroundColor: 'rgba(99, 102, 241, 0.7)',
+//     }]
+//   };
+
+//   return (
+//     <div className="min-h-screen bg-gray-50 py-6 px-4">
+//       <div className="max-w-6xl mx-auto">
+//         {/* Header */}
+//         <div className="mb-8 flex items-center justify-between">
+//           <div>
+//             <h1 className="text-3xl font-bold text-gray-900">Loyalty Dashboard</h1>
+//             <p className="text-gray-500 mt-1">Company: LOTIC BIGE LTD</p>
+//           </div>
+//           <div className="flex gap-2">
+//             {/* Filter Type Dropdown */}
+//             <select
+//               value={filterType}
+//               onChange={e => setFilterType(e.target.value)}
+//               className="border rounded px-2 py-1 text-gray-800"
+//             >
+//               <option value="all">All Dates (Day-wise chart)</option>
+//               <option value="day">Day</option>
+//               <option value="week">Week (date filter only)</option>
+//               <option value="month">Month</option>
+//               <option value="year">Year</option>
+//             </select>
+//             {/* Date Picker */}
+//             {filterType !== 'all' && (
+//               <input
+//                 type="date"
+//                 value={selectedDate}
+//                 onChange={e => setSelectedDate(e.target.value)}
+//                 className="border rounded px-2 py-1 text-gray-800"
+//               />
+//             )}
+//             {/* Customer Dropdown */}
+//             <div className="relative">
+//               <button
+//                 className="flex items-center gap-2 p-3 border rounded-lg bg-white text-gray-800"
+//                 onClick={() => setShowDropdown(!showDropdown)}
+//               >
+//                 <Calendar className="w-4 h-4" />
+//                 {selectedCustomer === 'all' ? 'All Customers' : selectedCustomer}
+//                 <ChevronDown className="w-4 h-4" />
+//               </button>
+//               {showDropdown && (
+//                 <div className="absolute mt-2 bg-white border shadow-lg rounded z-10 w-40 left-0">
+//                   <button className="block px-4 py-2 w-full hover:bg-blue-50"
+//                     onClick={() => { setSelectedCustomer('all'); setShowDropdown(false); }}>
+//                     All Customers
+//                   </button>
+//                   {customers.map(cust => (
+//                     <button key={cust} className="block px-4 py-2 w-full hover:bg-blue-50"
+//                       onClick={() => { setSelectedCustomer(cust); setShowDropdown(false); }}>
+//                       {cust}
+//                     </button>
+//                   ))}
+//                 </div>
+//               )}
+//             </div>
+//           </div>
+//         </div>
+
+//         {/* Metrics Grid */}
+//         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+//           <div className="bg-white rounded-lg p-6 shadow flex flex-col items-center">
+//             <Gift className="w-8 h-8 text-purple-500 mb-2" />
+//             <span className="text-sm text-gray-500">Total Points</span>
+//             <h2 className="text-2xl font-bold text-gray-900">{metrics.totalPoints}</h2>
+//           </div>
+//           <div className="bg-white rounded-lg p-6 shadow flex flex-col items-center">
+//             <CreditCard className="w-8 h-8 text-blue-500 mb-2" />
+//             <span className="text-sm text-gray-500">Total Purchases</span>
+//             <h2 className="text-2xl font-bold text-gray-900">{metrics.totalPurchase}</h2>
+//           </div>
+//           <div className="bg-white rounded-lg p-6 shadow flex flex-col items-center">
+//             <ArrowUpRight className="w-8 h-8 text-green-500 mb-2" />
+//             <span className="text-sm text-gray-500">Programs</span>
+//             <h2 className="text-2xl font-bold text-gray-900">{metrics.uniquePrograms}</h2>
+//           </div>
+//           <div className="bg-white rounded-lg p-6 shadow flex flex-col items-center">
+//             <Gift className="w-8 h-8 text-orange-500 mb-2" />
+//             <span className="text-sm text-gray-500">Customers</span>
+//             <h2 className="text-2xl font-bold text-gray-900">{metrics.uniqueCustomers}</h2>
+//           </div>
+//         </div>
+
+//         {/* Chart */}
+//         <div className="bg-white rounded-lg p-6 shadow mb-8">
+//           <h3 className="text-lg font-bold mb-4 text-gray-800">Loyalty Points Trend</h3>
+//           <Bar data={chartData} />
+//         </div>
+
+//         {/* Data Table */}
+//         <div className="bg-white rounded-lg p-6 shadow">
+//           <h3 className="text-lg font-bold mb-4 text-gray-800">All Loyalty Entries</h3>
+//           <table className="min-w-full divide-y divide-gray-200">
+//             <thead>
+//               <tr>
+//                 <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600">Customer</th>
+//                 <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600">Date</th>
+//                 <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600">Program</th>
+//                 <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600">Points</th>
+//                 <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600">Invoice</th>
+//               </tr>
+//             </thead>
+//             <tbody>
+//               {filteredData.map((row, i) => (
+//                 <tr key={row.name || i}>
+//                   <td className="px-4 py-2">{row.customer}</td>
+//                   <td className="px-4 py-2">{row.posting_date}</td>
+//                   <td className="px-4 py-2">{row.loyalty_program}</td>
+//                   <td className="px-4 py-2">{row.loyalty_points}</td>
+//                   <td className="px-4 py-2">{row.invoice || '-'}</td>
+//                 </tr>
+//               ))}
+//             </tbody>
+//           </table>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default LoyaltyDashboard;
+
+
+
 import React, { useState, useEffect, useMemo } from 'react';
-import { Gift, CreditCard, ArrowUpRight, Calendar, ChevronDown } from 'lucide-react';
+import { useSelector } from 'react-redux';
+import { Gift, CreditCard, ArrowUpRight, Calendar } from 'lucide-react';
 import { Bar } from 'react-chartjs-2';
 import 'chart.js/auto';
-import { format, isWithinInterval, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear } from 'date-fns';
+
+// Date utility functions to replace date-fns
+const formatDate = (date, formatStr) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  
+  switch (formatStr) {
+    case 'yyyy-MM-dd':
+      return `${year}-${month}-${day}`;
+    case 'yyyy-MM':
+      return `${year}-${month}`;
+    case 'yyyy':
+      return `${year}`;
+    default:
+      return `${year}-${month}-${day}`;
+  }
+};
+
+const getStartOfWeek = (date) => {
+  const d = new Date(date);
+  const day = d.getDay();
+  const diff = d.getDate() - day;
+  return new Date(d.setDate(diff));
+};
+
+const getEndOfWeek = (date) => {
+  const d = getStartOfWeek(date);
+  return new Date(d.setDate(d.getDate() + 6));
+};
+
+const getStartOfMonth = (date) => {
+  return new Date(date.getFullYear(), date.getMonth(), 1);
+};
+
+const getEndOfMonth = (date) => {
+  return new Date(date.getFullYear(), date.getMonth() + 1, 0);
+};
+
+const getStartOfYear = (date) => {
+  return new Date(date.getFullYear(), 0, 1);
+};
+
+const getEndOfYear = (date) => {
+  return new Date(date.getFullYear(), 11, 31);
+};
+
+const isWithinInterval = (date, interval) => {
+  return date >= interval.start && date <= interval.end;
+};
 
 // Helper for date filtering
 const filterByDate = (data, filterType, selectedDate) => {
@@ -538,13 +848,13 @@ const filterByDate = (data, filterType, selectedDate) => {
       interval = { start: dateObj, end: dateObj };
       break;
     case 'week':
-      interval = { start: startOfWeek(dateObj), end: endOfWeek(dateObj) };
+      interval = { start: getStartOfWeek(dateObj), end: getEndOfWeek(dateObj) };
       break;
     case 'month':
-      interval = { start: startOfMonth(dateObj), end: endOfMonth(dateObj) };
+      interval = { start: getStartOfMonth(dateObj), end: getEndOfMonth(dateObj) };
       break;
     case 'year':
-      interval = { start: startOfYear(dateObj), end: endOfYear(dateObj) };
+      interval = { start: getStartOfYear(dateObj), end: getEndOfYear(dateObj) };
       break;
     default:
       return data;
@@ -564,9 +874,9 @@ const aggregatePointsByPeriod = (data, period) => {
     let key = '';
     const date = new Date(item.posting_date);
     if (!item.posting_date) return; // skip if no date
-    if (period === 'day') key = format(date, 'yyyy-MM-dd');
-    else if (period === 'month') key = format(date, 'yyyy-MM');
-    else if (period === 'year') key = format(date, 'yyyy');
+    if (period === 'day') key = formatDate(date, 'yyyy-MM-dd');
+    else if (period === 'month') key = formatDate(date, 'yyyy-MM');
+    else if (period === 'year') key = formatDate(date, 'yyyy');
 
     if (!grouped[key]) grouped[key] = 0;
     grouped[key] += item.loyalty_points || 0;
@@ -579,57 +889,60 @@ const aggregatePointsByPeriod = (data, period) => {
 };
 
 const LoyaltyDashboard = () => {
+  // Redux user state
+  const { currentUser, loading, error } = useSelector((state) => state.user);
+  
   const [loyaltyData, setLoyaltyData] = useState([]);
-  const [selectedCustomer, setSelectedCustomer] = useState('Niranjan Singh');
-  const [showDropdown, setShowDropdown] = useState(false);
-
   const [filterType, setFilterType] = useState('all'); // all, day, week, month, year
   const [selectedDate, setSelectedDate] = useState('');
 
   const getLoyaltyPointsEntryFromLbl = async () => {
+    if (!currentUser?.full_name) return;
+    
     try {
       const myHeaders = new Headers();
       myHeaders.append("Authorization", "token e0723ce34466cea:79dca2f515d4e2c");
       myHeaders.append("Cookie", "full_name=Guest; sid=Guest; system_user=no; user_id=Guest; user_image=");
+      
       const requestOptions = {
         method: "GET",
         headers: myHeaders,
         redirect: "follow"
       };
 
-      const customerFilter = selectedCustomer === 'all' ? '' : selectedCustomer;
+      // Always filter by current user's full name
+      const url = `https://lblerp.anantdv.com/api/resource/Loyalty Point Entry?fields=["*"]&filters=[["customer", "=", "${currentUser.full_name}"]]`;
 
-      // fetch(`https://lblerp.anantdv.com/api/resource/Loyalty Point Entry?fields=["*"]${customerFilter ? `&filters=[["customer", "=", "${customerFilter}"]]` : ''}`, requestOptions)
-      fetch(`https://lblerp.anantdv.com/api/resource/Loyalty Point Entry?fields=["*"]${customerFilter ? `&filters=[["customer", "=", "${customerFilter}"]]` : ''}`, requestOptions)
+      fetch(url, requestOptions)
         .then((response) => response.json())
         .then((result) => {
-          setLoyaltyData(result.data);
+          setLoyaltyData(result.data || []);
         })
-        .catch((error) => console.error(error));
-    } catch (error) {}
+        .catch((error) => console.error('Error fetching loyalty data:', error));
+    } catch (error) {
+      console.error('Error in getLoyaltyPointsEntryFromLbl:', error);
+    }
   };
 
-
-  console.log("loyalty data....", loyaltyData)
+  console.log("loyalty data....", loyaltyData);
+  console.log("current user....", currentUser);
 
   useEffect(() => {
-    getLoyaltyPointsEntryFromLbl();
+    // Only fetch data if user is not loading and we have user data
+    if (!loading && currentUser?.full_name) {
+      getLoyaltyPointsEntryFromLbl();
+    }
     // eslint-disable-next-line
-  }, [selectedCustomer]);
+  }, [currentUser, loading]);
 
   const customers = useMemo(
     () => [...new Set(loyaltyData.map(item => item.customer))],
     [loyaltyData]
   );
 
-  const filteredByDate = useMemo(
+  const filteredData = useMemo(
     () => filterByDate(loyaltyData, filterType, selectedDate),
     [loyaltyData, filterType, selectedDate]
-  );
-
-  const filteredData = useMemo(
-    () => filteredByDate.filter(item => selectedCustomer === 'all' || item.customer === selectedCustomer),
-    [filteredByDate, selectedCustomer]
   );
 
   const metrics = useMemo(() => {
@@ -640,7 +953,7 @@ const LoyaltyDashboard = () => {
       totalPoints,
       totalPurchase,
       uniquePrograms,
-      uniqueCustomers: [...new Set(filteredData.map(item => item.customer))].length
+      totalEntries: filteredData.length
     };
   }, [filteredData]);
 
@@ -655,63 +968,107 @@ const LoyaltyDashboard = () => {
       label: 'Loyalty Points',
       data: dataPoints,
       backgroundColor: 'rgba(99, 102, 241, 0.7)',
+      borderColor: 'rgba(99, 102, 241, 1)',
+      borderWidth: 1,
     }]
   };
+
+  const chartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top',
+      },
+      title: {
+        display: false,
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        title: {
+          display: true,
+          text: 'Points'
+        }
+      },
+      x: {
+        title: {
+          display: true,
+          text: 'Date'
+        }
+      }
+    },
+  };
+
+  // Handle loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading user data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Handle error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-2">Error loading user data</p>
+          <p className="text-gray-600">{error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Handle case where user is not logged in
+  if (!currentUser || !currentUser.full_name) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-600 mb-2">Please log in to view your loyalty dashboard</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-6 px-4">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="mb-8 flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Loyalty Dashboard</h1>
-            <p className="text-gray-500 mt-1">Company: LOTIC BIGE LTD</p>
-          </div>
-          <div className="flex gap-2">
-            {/* Filter Type Dropdown */}
-            <select
-              value={filterType}
-              onChange={e => setFilterType(e.target.value)}
-              className="border rounded px-2 py-1 text-gray-800"
-            >
-              <option value="all">All Dates (Day-wise chart)</option>
-              <option value="day">Day</option>
-              <option value="week">Week (date filter only)</option>
-              <option value="month">Month</option>
-              <option value="year">Year</option>
-            </select>
-            {/* Date Picker */}
-            {filterType !== 'all' && (
-              <input
-                type="date"
-                value={selectedDate}
-                onChange={e => setSelectedDate(e.target.value)}
-                className="border rounded px-2 py-1 text-gray-800"
-              />
-            )}
-            {/* Customer Dropdown */}
-            <div className="relative">
-              <button
-                className="flex items-center gap-2 p-3 border rounded-lg bg-white text-gray-800"
-                onClick={() => setShowDropdown(!showDropdown)}
+        <div className="mb-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">My Loyalty Dashboard</h1>
+              <p className="text-gray-500 mt-1">Company: LOTIC BIGE LTD</p>
+              {currentUser && (
+                <p className="text-lg font-medium text-blue-600 mt-2">Welcome, {currentUser.full_name}</p>
+              )}
+            </div>
+            <div className="flex gap-2">
+              {/* Filter Type Dropdown */}
+              <select
+                value={filterType}
+                onChange={e => setFilterType(e.target.value)}
+                className="border rounded px-3 py-2 text-gray-800 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <Calendar className="w-4 h-4" />
-                {selectedCustomer === 'all' ? 'All Customers' : selectedCustomer}
-                <ChevronDown className="w-4 h-4" />
-              </button>
-              {showDropdown && (
-                <div className="absolute mt-2 bg-white border shadow-lg rounded z-10 w-40 left-0">
-                  <button className="block px-4 py-2 w-full hover:bg-blue-50"
-                    onClick={() => { setSelectedCustomer('all'); setShowDropdown(false); }}>
-                    All Customers
-                  </button>
-                  {customers.map(cust => (
-                    <button key={cust} className="block px-4 py-2 w-full hover:bg-blue-50"
-                      onClick={() => { setSelectedCustomer(cust); setShowDropdown(false); }}>
-                      {cust}
-                    </button>
-                  ))}
-                </div>
+                <option value="all">All Dates (Day-wise chart)</option>
+                <option value="day">Day</option>
+                <option value="week">Week (date filter only)</option>
+                <option value="month">Month</option>
+                <option value="year">Year</option>
+              </select>
+              {/* Date Picker */}
+              {filterType !== 'all' && (
+                <input
+                  type="date"
+                  value={selectedDate}
+                  onChange={e => setSelectedDate(e.target.value)}
+                  className="border rounded px-3 py-2 text-gray-800 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
               )}
             </div>
           </div>
@@ -719,59 +1076,122 @@ const LoyaltyDashboard = () => {
 
         {/* Metrics Grid */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-lg p-6 shadow flex flex-col items-center">
-            <Gift className="w-8 h-8 text-purple-500 mb-2" />
-            <span className="text-sm text-gray-500">Total Points</span>
-            <h2 className="text-2xl font-bold text-gray-900">{metrics.totalPoints}</h2>
+          <div className="bg-white rounded-lg p-6 shadow hover:shadow-md transition-shadow duration-200">
+            <div className="flex flex-col items-center">
+              <Gift className="w-8 h-8 text-purple-500 mb-2" />
+              <span className="text-sm text-gray-500">Total Points</span>
+              <h2 className="text-2xl font-bold text-gray-900">{metrics.totalPoints.toLocaleString()}</h2>
+            </div>
           </div>
-          <div className="bg-white rounded-lg p-6 shadow flex flex-col items-center">
-            <CreditCard className="w-8 h-8 text-blue-500 mb-2" />
-            <span className="text-sm text-gray-500">Total Purchases</span>
-            <h2 className="text-2xl font-bold text-gray-900">{metrics.totalPurchase}</h2>
+          <div className="bg-white rounded-lg p-6 shadow hover:shadow-md transition-shadow duration-200">
+            <div className="flex flex-col items-center">
+              <CreditCard className="w-8 h-8 text-blue-500 mb-2" />
+              <span className="text-sm text-gray-500">Total Purchases</span>
+              <h2 className="text-2xl font-bold text-gray-900">₹{metrics.totalPurchase.toLocaleString()}</h2>
+            </div>
           </div>
-          <div className="bg-white rounded-lg p-6 shadow flex flex-col items-center">
-            <ArrowUpRight className="w-8 h-8 text-green-500 mb-2" />
-            <span className="text-sm text-gray-500">Programs</span>
-            <h2 className="text-2xl font-bold text-gray-900">{metrics.uniquePrograms}</h2>
+          <div className="bg-white rounded-lg p-6 shadow hover:shadow-md transition-shadow duration-200">
+            <div className="flex flex-col items-center">
+              <ArrowUpRight className="w-8 h-8 text-green-500 mb-2" />
+              <span className="text-sm text-gray-500">Programs</span>
+              <h2 className="text-2xl font-bold text-gray-900">{metrics.uniquePrograms}</h2>
+            </div>
           </div>
-          <div className="bg-white rounded-lg p-6 shadow flex flex-col items-center">
-            <Gift className="w-8 h-8 text-orange-500 mb-2" />
-            <span className="text-sm text-gray-500">Customers</span>
-            <h2 className="text-2xl font-bold text-gray-900">{metrics.uniqueCustomers}</h2>
+          <div className="bg-white rounded-lg p-6 shadow hover:shadow-md transition-shadow duration-200">
+            <div className="flex flex-col items-center">
+              <Calendar className="w-8 h-8 text-orange-500 mb-2" />
+              <span className="text-sm text-gray-500">Total Entries</span>
+              <h2 className="text-2xl font-bold text-gray-900">{metrics.totalEntries}</h2>
+            </div>
           </div>
         </div>
 
         {/* Chart */}
         <div className="bg-white rounded-lg p-6 shadow mb-8">
           <h3 className="text-lg font-bold mb-4 text-gray-800">Loyalty Points Trend</h3>
-          <Bar data={chartData} />
+          {dataPoints.length > 0 ? (
+            <Bar data={chartData} options={chartOptions} />
+          ) : (
+            <div className="h-64 flex items-center justify-center text-gray-500">
+              <div className="text-center">
+                <Calendar className="w-12 h-12 text-gray-300 mx-auto mb-2" />
+                <p>No data available for the selected filters</p>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Data Table */}
         <div className="bg-white rounded-lg p-6 shadow">
-          <h3 className="text-lg font-bold mb-4 text-gray-800">All Loyalty Entries</h3>
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead>
-              <tr>
-                <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600">Customer</th>
-                <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600">Date</th>
-                <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600">Program</th>
-                <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600">Points</th>
-                <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600">Invoice</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredData.map((row, i) => (
-                <tr key={row.name || i}>
-                  <td className="px-4 py-2">{row.customer}</td>
-                  <td className="px-4 py-2">{row.posting_date}</td>
-                  <td className="px-4 py-2">{row.loyalty_program}</td>
-                  <td className="px-4 py-2">{row.loyalty_points}</td>
-                  <td className="px-4 py-2">{row.invoice || '-'}</td>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-bold text-gray-800">My Loyalty Entries</h3>
+            <span className="text-sm text-gray-500">
+              {filteredData.length} {filteredData.length === 1 ? 'entry' : 'entries'}
+            </span>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Date
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Program
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Points
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Invoice
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Purchase Amount
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {filteredData.length > 0 ? (
+                  filteredData.map((row, i) => (
+                    <tr key={row.name || i} className="hover:bg-gray-50 transition-colors duration-150">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {row.posting_date ? new Date(row.posting_date).toLocaleDateString() : '-'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
+                          {row.loyalty_program || 'N/A'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-600">
+                        +{row.loyalty_points || 0}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {row.invoice || '-'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {row.purchase_amount ? `₹${row.purchase_amount.toLocaleString()}` : '-'}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="5" className="px-6 py-12 text-center">
+                      <div className="text-gray-500">
+                        <Gift className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                        <p className="text-lg font-medium mb-2">No loyalty entries found</p>
+                        <p className="text-sm">
+                          {filterType !== 'all' 
+                            ? 'Try adjusting your filter criteria to see more results.'
+                            : 'You haven\'t earned any loyalty points yet.'
+                          }
+                        </p>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>

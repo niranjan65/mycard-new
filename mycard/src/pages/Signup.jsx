@@ -217,9 +217,462 @@
 
 
 
-import React, { useState } from 'react'
-import { useFrappeCreateDoc } from 'frappe-react-sdk';
-import SuccessModal from '@/components/SuccessModal';
+// import React, { useState } from 'react'
+// import { useFrappeCreateDoc } from 'frappe-react-sdk';
+// import SuccessModal from '@/components/SuccessModal';
+// import {
+//     Select,
+//     SelectContent,
+//     SelectGroup,
+//     SelectItem,
+//     SelectLabel,
+//     SelectTrigger,
+//     SelectValue,
+// } from "@/components/ui/select"
+// import { Eye, EyeOff, AlertCircle, CheckCircle2 } from 'lucide-react';
+
+// const Signup = () => {
+//     const { createDoc, loading } = useFrappeCreateDoc();
+//     const [showSuccessModal, setShowSuccessModal] = useState(false);
+//     const [showPassword, setShowPassword] = useState(false);
+//     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+//     const [passwordError, setPasswordError] = useState("");
+    
+//     const [userData, setUserData] = useState({
+//         first_name: "",
+//         email: "",
+//         gender: "",
+//         last_name: "",
+//         birth_date: "2025-04-02",
+//         mobile_no: "",
+//         new_password: "",
+//         confirm_password: "",
+//         role_profile_name: "User All Access"
+//     });
+
+//     // const createUser = async (docData) => {
+//     //     const myHeaders = new Headers();
+//     //     myHeaders.append("Authorization", "token a36acbb78e6712b:d67b02287bbba9a");
+//     //     myHeaders.append("Content-Type", "application/json");
+//     //     myHeaders.append("Cookie", "full_name=Guest; sid=Guest; system_user=no; user_id=Guest; user_image=");
+
+//     //     console.log("create user", userData)
+
+//     //     const raw = JSON.stringify({
+//     //         "first_name": userData.first_name,
+//     //         "email": userData.email,
+//     //         "gender": userData.gender,
+//     //         "full_name": userData.full_name,
+//     //         "birth_date": "2025-04-02",
+//     //         "mobile_no": userData.mobile_no,
+//     //         "new_password": userData.new_password
+//     //     });
+
+//     //     const requestOptions = {
+//     //         method: "POST",
+//     //         headers: myHeaders,
+//     //         body: raw,
+//     //         redirect: "follow"
+//     //     };
+
+//     //     return await fetch("/api/resource/User", requestOptions)
+//     //         .then((response) => response.json())
+//     //         .then((result) => {
+//     //             console.log(result);
+//     //             return result;
+//     //         })
+//     //         .catch((error) => {
+//     //             console.error(error);
+//     //             throw error;
+//     //         });
+//     // }
+
+// const createUser = (docData) => {
+// const myHeaders = new Headers();
+// myHeaders.append("Authorization", "token 3533a01fba5c78a:12e33572bb13e99");
+// myHeaders.append("Content-Type", "application/json");
+// // myHeaders.append("Cookie", "full_name=Guest; sid=Guest; system_user=no; user_id=Guest; user_image=");
+
+// console.log("create user",userData)
+
+
+// const raw = JSON.stringify({
+//   "first_name": userData.first_name,
+//   "email": userData.email,
+//   "gender": userData.gender,
+//   "last_name": userData.last_name,
+//   "birth_date": "2025-04-02",
+//   "mobile_no": "",
+//   "new_password": userData.new_password,
+//   "role_profile_name": "User All Access"
+// });
+
+// const requestOptions = {
+//   method: "POST",
+//   headers: myHeaders,
+//   body: raw,
+//   redirect: "follow",
+//   credentials: "omit",
+// };
+
+// fetch("/api/resource/User", requestOptions)
+//   .then((response) => response.json())
+//   .then((result) =>{
+//     if(result.data) {
+//         setShowSuccessModal(true)
+//     } else if (result.exception) {
+//         setPasswordError(result.exception)
+//     }
+//   })
+//   .catch((error) => console.error(error));
+//      }
+
+
+//     const genderData = [ "Female", "Male", "Prefer not to say", "Non-Conforming", "Genderqueer", "Transgender", "Other"];
+
+//     const validatePasswords = () => {
+//         if (userData.new_password !== userData.confirm_password) {
+//             setPasswordError("Passwords do not match");
+//             return false;
+//         }
+//         if (userData.new_password.length < 6) {
+//             setPasswordError("Password must be at least 6 characters long");
+//             return false;
+//         }
+//         setPasswordError("");
+//         return true;
+//     };
+
+//     const handleSubmit = async (e) => {
+//         e.preventDefault();
+        
+//         if (!validatePasswords()) {
+//             return;
+//         }
+
+//         console.log("EMAIL.....", userData)
+        // const docData = {
+        //     first_name: userData.first_name,
+        //     email: userData.email,
+        //     gender: userData.gender,
+        //     full_name: userData.full_name,
+        //     birth_date: "2025-04-02",
+        //     mobile_no: userData.mobile_no,
+        //     new_password: userData.new_password,
+        //     role_profile_name: "User All Access"
+        // };
+
+        // console.log("USER data....", docData)
+
+        // try {
+        //     const result = createUser(docData);
+        //     console.log("result", result)
+        //     // if (result) {
+        //     //     setShowSuccessModal(true)
+        //     // }
+        // } catch (error) {
+        //     console.error("Error creating user:", error);
+        // }
+//     }
+
+//     const handleInputChange = (e) => {
+//         const { name, value } = e.target;
+//         setUserData(prev => ({ ...prev, [name]: value }));
+        
+//         // Clear password error when user starts typing
+//         if (name === 'new_password' || name === 'confirm_password') {
+//             setPasswordError("");
+//         }
+//     };
+
+//     const handleGenderChange = (value) => {
+//         setUserData(prev => ({ ...prev, gender: value }));
+//     };
+
+//     const handleCloseModal = () => {
+//         setShowSuccessModal(false);
+//     };
+
+//     const passwordsMatch = userData.new_password && userData.confirm_password && userData.new_password === userData.confirm_password;
+
+//     return (
+//         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center p-4 relative overflow-hidden">
+//             {/* Decorative background elements */}
+//             <div className="absolute top-10 left-10 w-32 h-32 bg-blue-200/30 rounded-full blur-3xl animate-pulse dark:bg-blue-500/10"></div>
+//             <div className="absolute bottom-10 right-10 w-40 h-40 bg-purple-200/30 rounded-full blur-3xl animate-pulse dark:bg-purple-500/10" style={{animationDelay: '1s'}}></div>
+//             <div className="absolute top-1/2 left-1/4 w-24 h-24 bg-pink-200/20 rounded-full blur-2xl animate-pulse dark:bg-pink-500/10" style={{animationDelay: '2s'}}></div>
+            
+//             <div className="w-full max-w-lg relative z-10">
+               
+//                 <div className="text-center mb-8">
+                    
+//                     <p className="text-gray-600 dark:text-gray-400">Create your account in seconds</p>
+//                 </div>
+
+//                 {/* Form container with glassmorphism effect */}
+//                 <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 dark:bg-gray-800/80 dark:border-gray-700/20 p-8 transform transition-all duration-300 hover:shadow-3xl">
+//                 <div className='ml-[40%]'>
+//                   <img className='h-16' src='/assets/erpnext/images/mycard-logo.png' alt="MyCard Logo" />
+//                 </div>
+//                     <div className="space-y-6">
+
+//                         <div className="space-y-2">
+//                                 <label htmlFor="email" className="block text-sm font-semibold text-gray-700 dark:text-gray-200">
+//                                     Email Address
+//                                 </label>
+//                                 <input 
+//                                     type="email" 
+//                                     name="email" 
+//                                     id="email" 
+//                                     value={userData.email} 
+//                                     onChange={handleInputChange} 
+//                                     className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white/50 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 dark:bg-gray-700/50 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-400" 
+//                                     placeholder="name@company.com" 
+//                                     required 
+//                                 />
+//                             </div>
+//                         {/* Email and First Name Row */}
+//                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            
+//                             <div className="space-y-2">
+//                                 <label htmlFor="first_name" className="block text-sm font-semibold text-gray-700 dark:text-gray-200">
+//                                     First Name
+//                                 </label>
+//                                 <input 
+//                                     type="text" 
+//                                     name="first_name" 
+//                                     id="first_name" 
+//                                     value={userData.first_name}
+//                                     onChange={handleInputChange} 
+//                                     placeholder="First Name" 
+//                                     className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white/50 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 dark:bg-gray-700/50 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-400" 
+//                                     required 
+//                                 />
+//                             </div>
+
+//                             {/* Last Name */}
+//                         <div className="space-y-2">
+//                             <label htmlFor="last_name" className="block text-sm font-semibold text-gray-700 dark:text-gray-200">
+//                                 Last Name
+//                             </label>
+//                             <input 
+//                                 type="text" 
+//                                 name="last_name" 
+//                                 id="last_name" 
+//                                 value={userData.last_name} 
+//                                 onChange={handleInputChange} 
+//                                 placeholder="Full Name" 
+//                                 className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white/50 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 dark:bg-gray-700/50 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-400" 
+//                                 required 
+//                             />
+//                         </div>
+//                         </div>
+
+                        
+
+                        
+
+//                         {/* Gender and Mobile Row */}
+//                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+//                             <div className="space-y-2">
+//                                 <label htmlFor="gender" className="block text-sm font-semibold text-gray-700 dark:text-gray-200">
+//                                     Gender
+//                                 </label>
+//                                 <Select onValueChange={handleGenderChange} value={userData.gender}>
+//                                     <SelectTrigger className="w-full h-12 px-4 rounded-xl border-2 border-gray-200 bg-white/50 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 dark:bg-gray-700/50 dark:border-gray-600">
+//                                         <SelectValue placeholder="Select gender" />
+//                                     </SelectTrigger>
+//                                     <SelectContent className="rounded-xl">
+//                                         <SelectGroup>
+//                                             <SelectLabel>Gender</SelectLabel>
+//                                             {genderData.map((gender, index) => (
+//                                                 <SelectItem key={index} value={gender} className="rounded-lg">
+//                                                     {gender}
+//                                                 </SelectItem>
+//                                             ))}
+//                                         </SelectGroup>
+//                                     </SelectContent>
+//                                 </Select>
+//                             </div>
+//                             <div className="space-y-2">
+//                                 <label htmlFor="mobile_no" className="block text-sm font-semibold text-gray-700 dark:text-gray-200">
+//                                     Mobile Number
+//                                 </label>
+//                                 <input 
+//                                     type="tel" 
+//                                     name="mobile_no" 
+//                                     id="mobile_no" 
+//                                     value={userData.mobile_no} 
+//                                     onChange={handleInputChange} 
+//                                     placeholder="Mobile Number" 
+//                                     className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white/50 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 dark:bg-gray-700/50 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-400" 
+//                                 />
+//                             </div>
+//                         </div>
+
+//                         {/* Password Fields */}
+//                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+//                             <div className="space-y-2">
+//                                 <label htmlFor="new_password" className="block text-sm font-semibold text-gray-700 dark:text-gray-200">
+//                                     Password
+//                                 </label>
+//                                 <div className="relative">
+//                                     <input 
+//                                         type={showPassword ? "text" : "password"}
+//                                         name="new_password" 
+//                                         id="new_password" 
+//                                         value={userData.new_password}
+//                                         onChange={handleInputChange}
+//                                         className="w-full px-4 py-3 pr-12 rounded-xl border-2 border-gray-200 bg-white/50 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 dark:bg-gray-700/50 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-400" 
+//                                         placeholder="Enter password"
+//                                         required 
+//                                     />
+//                                     <button
+//                                         type="button"
+//                                         onClick={() => setShowPassword(!showPassword)}
+//                                         className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+//                                     >
+//                                         {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+//                                     </button>
+//                                 </div>
+//                             </div>
+//                             <div className="space-y-2">
+//                                 <label htmlFor="confirm_password" className="block text-sm font-semibold text-gray-700 dark:text-gray-200">
+//                                     Confirm Password
+//                                 </label>
+//                                 <div className="relative">
+//                                     <input 
+//                                         type={showConfirmPassword ? "text" : "password"}
+//                                         name="confirm_password" 
+//                                         id="confirm_password" 
+//                                         value={userData.confirm_password}
+//                                         onChange={handleInputChange}
+//                                         className={`w-full px-4 py-3 pr-12 rounded-xl border-2 bg-white/50 text-gray-900 placeholder-gray-500 transition-all duration-200 dark:bg-gray-700/50 dark:text-white dark:placeholder-gray-400 ${
+//                                             passwordError 
+//                                                 ? 'border-red-300 focus:border-red-500 focus:ring-2 focus:ring-red-200' 
+//                                                 : passwordsMatch && userData.confirm_password
+//                                                 ? 'border-green-300 focus:border-green-500 focus:ring-2 focus:ring-green-200'
+//                                                 : 'border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200'
+//                                         } dark:border-gray-600`}
+//                                         placeholder="Confirm password"
+//                                         required 
+//                                     />
+//                                     <div className="absolute right-12 top-1/2 transform -translate-y-1/2">
+//                                         {userData.confirm_password && (
+//                                             passwordsMatch ? (
+//                                                 <CheckCircle2 size={20} className="text-green-500" />
+//                                             ) : (
+//                                                 <AlertCircle size={20} className="text-red-500" />
+//                                             )
+//                                         )}
+//                                     </div>
+//                                     <button
+//                                         type="button"
+//                                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+//                                         className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+//                                     >
+//                                         {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+//                                     </button>
+//                                 </div>
+//                             </div>
+//                         </div>
+
+//                         {/* Password Error Message */}
+//                         {passwordError && (
+//                             <div className="flex items-center gap-2 text-red-600 text-sm bg-red-50 border border-red-200 rounded-xl px-4 py-3 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400 ">
+//                                 <AlertCircle size={16} />
+//                                 <span>{passwordError}</span>
+//                             </div>
+//                         )}
+
+//                         {/* Password Match Success */}
+//                         {passwordsMatch && userData.confirm_password && !passwordError && (
+//                             <div className="flex items-center gap-2 text-green-600 text-sm bg-green-50 border border-green-200 rounded-xl px-4 py-3 dark:bg-green-900/20 dark:border-green-800 dark:text-green-400">
+//                                 <CheckCircle2 size={16} />
+//                                 <span>Passwords match perfectly!</span>
+//                             </div>
+//                         )}
+
+//                         {/* Terms and Conditions */}
+//                         <div className="flex items-start gap-3">
+//                             <div className="flex items-center h-6 mt-1">
+//                                 <input 
+//                                     id="terms" 
+//                                     type="checkbox" 
+//                                     className="w-5 h-5 border-2 border-gray-300 rounded-lg bg-white focus:ring-3 focus:ring-blue-300 checked:bg-blue-600 checked:border-blue-600 transition-all duration-200 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600" 
+//                                     required 
+//                                 />
+//                             </div>
+//                             <label htmlFor="terms" className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+//                                 I agree to the{' '}
+//                                 <a href="#" className="font-semibold text-blue-600 hover:text-blue-800 underline decoration-2 underline-offset-2 transition-colors dark:text-blue-400 dark:hover:text-blue-300">
+//                                     Terms and Conditions
+//                                 </a>{' '}
+//                                 and{' '}
+//                                 <a href="#" className="font-semibold text-blue-600 hover:text-blue-800 underline decoration-2 underline-offset-2 transition-colors dark:text-blue-400 dark:hover:text-blue-300">
+//                                     Privacy Policy
+//                                 </a>
+//                             </label>
+//                         </div>
+
+//                         {/* Submit Button */}
+//                         <button 
+//                             type="button"
+//                             onClick={handleSubmit}
+//                             disabled={loading || passwordError || !passwordsMatch || !userData.email || !userData.first_name || !userData.new_password}
+//                             className={`w-full py-4 rounded-xl font-semibold text-white transition-all duration-300 transform ${
+//                                 loading || passwordError || !passwordsMatch || !userData.email || !userData.first_name || !userData.new_password
+//                                     ? 'bg-gray-400 cursor-not-allowed opacity-50' 
+//                                     : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl'
+//                             }`}
+//                         >
+//                             {loading ? (
+//                                 <div className="flex items-center justify-center gap-2">
+//                                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+//                                     Creating Account...
+//                                 </div>
+//                             ) : (
+//                                 'Create Account'
+//                             )}
+//                         </button>
+
+//                         {/* Login Link */}
+//                         <div className="text-center pt-4">
+//                             <p className="text-gray-600 dark:text-gray-400">
+//                                 Already have an account?{' '}
+//                                 <a 
+//                                     href="/mycard/login" 
+//                                     className="font-semibold text-blue-600 hover:text-blue-800 underline decoration-2 underline-offset-2 transition-colors dark:text-blue-400 dark:hover:text-blue-300"
+//                                 >
+//                                     Sign in here
+//                                 </a>
+//                             </p>
+//                         </div>
+//                     </div>
+//                 </div>
+//             </div>
+
+//             {/* Success Modal */}
+//             <SuccessModal 
+//                 isOpen={showSuccessModal} 
+//                 onClose={handleCloseModal} 
+//             />
+//         </div>
+//     )
+// }
+
+// export default Signup
+
+
+
+
+
+
+
+
+
+
+import { useFrappeCreateDoc } from "frappe-react-sdk"
 import {
     Select,
     SelectContent,
@@ -229,65 +682,79 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import { Eye, EyeOff, AlertCircle, CheckCircle2 } from 'lucide-react';
 
-const Signup = () => {
-    const { createDoc, loading } = useFrappeCreateDoc();
-    const [showSuccessModal, setShowSuccessModal] = useState(false);
-    const [showPassword, setShowPassword] = useState(false);
-    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-    const [passwordError, setPasswordError] = useState("");
-    
-    const [userData, setUserData] = useState({
-        first_name: "",
-        email: "",
-        gender: "",
-        last_name: "",
-        birth_date: "2025-04-02",
-        mobile_no: "",
-        new_password: "",
-        confirm_password: "",
-        role_profile_name: "User All Access"
-    });
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import { Eye, EyeOff, AlertCircle, CheckCircle2 } from "lucide-react";
+import logo from "@/assets/new-logo.png";
+import SuccessModal from "@/components/SuccessModal";
 
-    // const createUser = async (docData) => {
-    //     const myHeaders = new Headers();
-    //     myHeaders.append("Authorization", "token a36acbb78e6712b:d67b02287bbba9a");
-    //     myHeaders.append("Content-Type", "application/json");
-    //     myHeaders.append("Cookie", "full_name=Guest; sid=Guest; system_user=no; user_id=Guest; user_image=");
+const genderData = [
+  "Female", "Male", "Prefer not to say", "Non-Conforming",
+  "Genderqueer", "Transgender", "Other"
+];
 
-    //     console.log("create user", userData)
+const containerVariants = {
+  hidden: { opacity: 0, y: 30, scale: 0.95 },
+  visible: { opacity: 1, y: 0, scale: 1,
+    transition: { duration: 0.6, ease: "easeOut", when: "beforeChildren", staggerChildren: 0.1 }
+  }
+};
 
-    //     const raw = JSON.stringify({
-    //         "first_name": userData.first_name,
-    //         "email": userData.email,
-    //         "gender": userData.gender,
-    //         "full_name": userData.full_name,
-    //         "birth_date": "2025-04-02",
-    //         "mobile_no": userData.mobile_no,
-    //         "new_password": userData.new_password
-    //     });
+const childVariants = {
+  hidden: { opacity: 0, y: 12 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.3 } }
+};
 
-    //     const requestOptions = {
-    //         method: "POST",
-    //         headers: myHeaders,
-    //         body: raw,
-    //         redirect: "follow"
-    //     };
+export default function Signup() {
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [passwordError, setPasswordError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-    //     return await fetch("/api/resource/User", requestOptions)
-    //         .then((response) => response.json())
-    //         .then((result) => {
-    //             console.log(result);
-    //             return result;
-    //         })
-    //         .catch((error) => {
-    //             console.error(error);
-    //             throw error;
-    //         });
-    // }
+  const [userData, setUserData] = useState({
+    first_name: "",
+    last_name: "",
+    email: "",
+    gender: "",
+    birth_date: "2025-04-02",
+    mobile_no: "",
+    new_password: "",
+    confirm_password: "",
+    role_profile_name: "User All Access"
+  });
 
-const createUser = (docData) => {
+  const passwordsMatch = userData.new_password &&
+    userData.confirm_password &&
+    userData.new_password === userData.confirm_password;
+
+  const validatePasswords = () => {
+    if (userData.new_password !== userData.confirm_password) {
+      setPasswordError("Passwords do not match");
+      return false;
+    }
+    if (userData.new_password.length < 6) {
+      setPasswordError("Password must be at least 6 characters long");
+      return false;
+    }
+    setPasswordError("");
+    return true;
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setUserData((prev) => ({ ...prev, [name]: value }));
+    if (name === 'new_password' || name === 'confirm_password') setPasswordError("");
+  };
+
+  const handleGenderChange = (value) => {
+    setUserData((prev) => ({ ...prev, gender: value }));
+  };
+
+  const handleCloseModal = () => setShowSuccessModal(false);
+
+  const createUser = (docData) => {
 const myHeaders = new Headers();
 myHeaders.append("Authorization", "token 3533a01fba5c78a:12e33572bb13e99");
 myHeaders.append("Content-Type", "application/json");
@@ -327,31 +794,10 @@ fetch("/api/resource/User", requestOptions)
   .catch((error) => console.error(error));
      }
 
-
-    const genderData = [ "Female", "Male", "Prefer not to say", "Non-Conforming", "Genderqueer", "Transgender", "Other"];
-
-    const validatePasswords = () => {
-        if (userData.new_password !== userData.confirm_password) {
-            setPasswordError("Passwords do not match");
-            return false;
-        }
-        if (userData.new_password.length < 6) {
-            setPasswordError("Password must be at least 6 characters long");
-            return false;
-        }
-        setPasswordError("");
-        return true;
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        
-        if (!validatePasswords()) {
-            return;
-        }
-
-        console.log("EMAIL.....", userData)
-        const docData = {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validatePasswords()) return;
+            const docData = {
             first_name: userData.first_name,
             email: userData.email,
             gender: userData.gender,
@@ -365,300 +811,277 @@ fetch("/api/resource/User", requestOptions)
         console.log("USER data....", docData)
 
         try {
-            const result = createUser(docData);
-            console.log("result", result)
+             createUser(docData);
+            
             // if (result) {
             //     setShowSuccessModal(true)
             // }
+            setLoading(false);
         } catch (error) {
             console.error("Error creating user:", error);
         }
-    }
+  };
 
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setUserData(prev => ({ ...prev, [name]: value }));
-        
-        // Clear password error when user starts typing
-        if (name === 'new_password' || name === 'confirm_password') {
-            setPasswordError("");
-        }
-    };
+  return (
+    <div className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-purple-100 overflow-hidden px-4">
 
-    const handleGenderChange = (value) => {
-        setUserData(prev => ({ ...prev, gender: value }));
-    };
+      {/* Animated blurred blobs */}
+      <motion.div
+        className="absolute top-[-10%] left-[-12%] w-60 h-60 bg-blue-400 opacity-20 rounded-full blur-3xl"
+        animate={{ scale: [1, 1.15, 1] }}
+        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <motion.div
+        className="absolute bottom-[-10%] right-[-12%] w-72 h-72 bg-purple-500 opacity-25 rounded-full blur-3xl"
+        animate={{ scale: [1, 0.9, 1] }}
+        transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
+      />
 
-    const handleCloseModal = () => {
-        setShowSuccessModal(false);
-    };
+      {/* Glassmorphic sign-up card */}
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="relative z-10 w-full max-w-md p-8 rounded-3xl bg-white/50 backdrop-blur-xl shadow-lg border border-blue-200"
+      >
+        {/* Logo */}
+        <motion.img
+          variants={childVariants}
+          src={logo}
+          alt="Logo"
+          className="mx-auto mb-5 h-14 rounded-full shadow-sm"
+        />
+        {/* Heading */}
+        <motion.h2
+          variants={childVariants}
+          className="text-center text-3xl font-extrabold text-blue-700 mb-2"
+        >
+          Create your account
+        </motion.h2>
+        <motion.p
+          variants={childVariants}
+          className="text-center text-blue-400 mb-8"
+        >
+          Signup to get started
+        </motion.p>
 
-    const passwordsMatch = userData.new_password && userData.confirm_password && userData.new_password === userData.confirm_password;
-
-    return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center p-4 relative overflow-hidden">
-            {/* Decorative background elements */}
-            <div className="absolute top-10 left-10 w-32 h-32 bg-blue-200/30 rounded-full blur-3xl animate-pulse dark:bg-blue-500/10"></div>
-            <div className="absolute bottom-10 right-10 w-40 h-40 bg-purple-200/30 rounded-full blur-3xl animate-pulse dark:bg-purple-500/10" style={{animationDelay: '1s'}}></div>
-            <div className="absolute top-1/2 left-1/4 w-24 h-24 bg-pink-200/20 rounded-full blur-2xl animate-pulse dark:bg-pink-500/10" style={{animationDelay: '2s'}}></div>
-            
-            <div className="w-full max-w-lg relative z-10">
-               
-                <div className="text-center mb-8">
-                    
-                    <p className="text-gray-600 dark:text-gray-400">Create your account in seconds</p>
-                </div>
-
-                {/* Form container with glassmorphism effect */}
-                <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 dark:bg-gray-800/80 dark:border-gray-700/20 p-8 transform transition-all duration-300 hover:shadow-3xl">
-                <div className='ml-[40%]'>
-                  <img className='h-16' src='/assets/erpnext/images/mycard-logo.png' alt="MyCard Logo" />
-                </div>
-                    <div className="space-y-6">
-
-                        <div className="space-y-2">
-                                <label htmlFor="email" className="block text-sm font-semibold text-gray-700 dark:text-gray-200">
-                                    Email Address
-                                </label>
-                                <input 
-                                    type="email" 
-                                    name="email" 
-                                    id="email" 
-                                    value={userData.email} 
-                                    onChange={handleInputChange} 
-                                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white/50 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 dark:bg-gray-700/50 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-400" 
-                                    placeholder="name@company.com" 
-                                    required 
-                                />
-                            </div>
-                        {/* Email and First Name Row */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            
-                            <div className="space-y-2">
-                                <label htmlFor="first_name" className="block text-sm font-semibold text-gray-700 dark:text-gray-200">
-                                    First Name
-                                </label>
-                                <input 
-                                    type="text" 
-                                    name="first_name" 
-                                    id="first_name" 
-                                    value={userData.first_name}
-                                    onChange={handleInputChange} 
-                                    placeholder="First Name" 
-                                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white/50 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 dark:bg-gray-700/50 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-400" 
-                                    required 
-                                />
-                            </div>
-
-                            {/* Last Name */}
-                        <div className="space-y-2">
-                            <label htmlFor="last_name" className="block text-sm font-semibold text-gray-700 dark:text-gray-200">
-                                Last Name
-                            </label>
-                            <input 
-                                type="text" 
-                                name="last_name" 
-                                id="last_name" 
-                                value={userData.last_name} 
-                                onChange={handleInputChange} 
-                                placeholder="Full Name" 
-                                className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white/50 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 dark:bg-gray-700/50 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-400" 
-                                required 
-                            />
-                        </div>
-                        </div>
-
-                        
-
-                        
-
-                        {/* Gender and Mobile Row */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <label htmlFor="gender" className="block text-sm font-semibold text-gray-700 dark:text-gray-200">
-                                    Gender
-                                </label>
-                                <Select onValueChange={handleGenderChange} value={userData.gender}>
-                                    <SelectTrigger className="w-full h-12 px-4 rounded-xl border-2 border-gray-200 bg-white/50 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 dark:bg-gray-700/50 dark:border-gray-600">
-                                        <SelectValue placeholder="Select gender" />
-                                    </SelectTrigger>
-                                    <SelectContent className="rounded-xl">
-                                        <SelectGroup>
-                                            <SelectLabel>Gender</SelectLabel>
-                                            {genderData.map((gender, index) => (
-                                                <SelectItem key={index} value={gender} className="rounded-lg">
-                                                    {gender}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectGroup>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                            <div className="space-y-2">
-                                <label htmlFor="mobile_no" className="block text-sm font-semibold text-gray-700 dark:text-gray-200">
-                                    Mobile Number
-                                </label>
-                                <input 
-                                    type="tel" 
-                                    name="mobile_no" 
-                                    id="mobile_no" 
-                                    value={userData.mobile_no} 
-                                    onChange={handleInputChange} 
-                                    placeholder="Mobile Number" 
-                                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white/50 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 dark:bg-gray-700/50 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-400" 
-                                />
-                            </div>
-                        </div>
-
-                        {/* Password Fields */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <label htmlFor="new_password" className="block text-sm font-semibold text-gray-700 dark:text-gray-200">
-                                    Password
-                                </label>
-                                <div className="relative">
-                                    <input 
-                                        type={showPassword ? "text" : "password"}
-                                        name="new_password" 
-                                        id="new_password" 
-                                        value={userData.new_password}
-                                        onChange={handleInputChange}
-                                        className="w-full px-4 py-3 pr-12 rounded-xl border-2 border-gray-200 bg-white/50 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 dark:bg-gray-700/50 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-400" 
-                                        placeholder="Enter password"
-                                        required 
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowPassword(!showPassword)}
-                                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                                    >
-                                        {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                                    </button>
-                                </div>
-                            </div>
-                            <div className="space-y-2">
-                                <label htmlFor="confirm_password" className="block text-sm font-semibold text-gray-700 dark:text-gray-200">
-                                    Confirm Password
-                                </label>
-                                <div className="relative">
-                                    <input 
-                                        type={showConfirmPassword ? "text" : "password"}
-                                        name="confirm_password" 
-                                        id="confirm_password" 
-                                        value={userData.confirm_password}
-                                        onChange={handleInputChange}
-                                        className={`w-full px-4 py-3 pr-12 rounded-xl border-2 bg-white/50 text-gray-900 placeholder-gray-500 transition-all duration-200 dark:bg-gray-700/50 dark:text-white dark:placeholder-gray-400 ${
-                                            passwordError 
-                                                ? 'border-red-300 focus:border-red-500 focus:ring-2 focus:ring-red-200' 
-                                                : passwordsMatch && userData.confirm_password
-                                                ? 'border-green-300 focus:border-green-500 focus:ring-2 focus:ring-green-200'
-                                                : 'border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200'
-                                        } dark:border-gray-600`}
-                                        placeholder="Confirm password"
-                                        required 
-                                    />
-                                    <div className="absolute right-12 top-1/2 transform -translate-y-1/2">
-                                        {userData.confirm_password && (
-                                            passwordsMatch ? (
-                                                <CheckCircle2 size={20} className="text-green-500" />
-                                            ) : (
-                                                <AlertCircle size={20} className="text-red-500" />
-                                            )
-                                        )}
-                                    </div>
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                                    >
-                                        {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Password Error Message */}
-                        {passwordError && (
-                            <div className="flex items-center gap-2 text-red-600 text-sm bg-red-50 border border-red-200 rounded-xl px-4 py-3 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400 ">
-                                <AlertCircle size={16} />
-                                <span>{passwordError}</span>
-                            </div>
-                        )}
-
-                        {/* Password Match Success */}
-                        {passwordsMatch && userData.confirm_password && !passwordError && (
-                            <div className="flex items-center gap-2 text-green-600 text-sm bg-green-50 border border-green-200 rounded-xl px-4 py-3 dark:bg-green-900/20 dark:border-green-800 dark:text-green-400">
-                                <CheckCircle2 size={16} />
-                                <span>Passwords match perfectly!</span>
-                            </div>
-                        )}
-
-                        {/* Terms and Conditions */}
-                        <div className="flex items-start gap-3">
-                            <div className="flex items-center h-6 mt-1">
-                                <input 
-                                    id="terms" 
-                                    type="checkbox" 
-                                    className="w-5 h-5 border-2 border-gray-300 rounded-lg bg-white focus:ring-3 focus:ring-blue-300 checked:bg-blue-600 checked:border-blue-600 transition-all duration-200 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600" 
-                                    required 
-                                />
-                            </div>
-                            <label htmlFor="terms" className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
-                                I agree to the{' '}
-                                <a href="#" className="font-semibold text-blue-600 hover:text-blue-800 underline decoration-2 underline-offset-2 transition-colors dark:text-blue-400 dark:hover:text-blue-300">
-                                    Terms and Conditions
-                                </a>{' '}
-                                and{' '}
-                                <a href="#" className="font-semibold text-blue-600 hover:text-blue-800 underline decoration-2 underline-offset-2 transition-colors dark:text-blue-400 dark:hover:text-blue-300">
-                                    Privacy Policy
-                                </a>
-                            </label>
-                        </div>
-
-                        {/* Submit Button */}
-                        <button 
-                            type="button"
-                            onClick={handleSubmit}
-                            disabled={loading || passwordError || !passwordsMatch || !userData.email || !userData.first_name || !userData.new_password}
-                            className={`w-full py-4 rounded-xl font-semibold text-white transition-all duration-300 transform ${
-                                loading || passwordError || !passwordsMatch || !userData.email || !userData.first_name || !userData.new_password
-                                    ? 'bg-gray-400 cursor-not-allowed opacity-50' 
-                                    : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl'
-                            }`}
-                        >
-                            {loading ? (
-                                <div className="flex items-center justify-center gap-2">
-                                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                                    Creating Account...
-                                </div>
-                            ) : (
-                                'Create Account'
-                            )}
-                        </button>
-
-                        {/* Login Link */}
-                        <div className="text-center pt-4">
-                            <p className="text-gray-600 dark:text-gray-400">
-                                Already have an account?{' '}
-                                <a 
-                                    href="/mycard/login" 
-                                    className="font-semibold text-blue-600 hover:text-blue-800 underline decoration-2 underline-offset-2 transition-colors dark:text-blue-400 dark:hover:text-blue-300"
-                                >
-                                    Sign in here
-                                </a>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Success Modal */}
-            <SuccessModal 
-                isOpen={showSuccessModal} 
-                onClose={handleCloseModal} 
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Email */}
+          <motion.div variants={childVariants}>
+            <label className="block mb-1 text-sm font-semibold text-blue-700">Email Address</label>
+            <input
+              type="email"
+              name="email"
+              value={userData.email}
+              onChange={handleInputChange}
+              disabled={loading}
+              required
+              className="w-full rounded-lg border border-blue-300 bg-white/70 px-4 py-3 text-blue-900 placeholder-blue-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition"
+              placeholder="name@company.com"
             />
-        </div>
-    )
-}
+          </motion.div>
 
-export default Signup
+          {/* First + Last name */}
+          <div className="grid grid-cols-2 gap-4">
+            <motion.div variants={childVariants}>
+              <label className="block mb-1 text-sm font-semibold text-blue-700">First Name</label>
+              <input
+                type="text"
+                name="first_name"
+                value={userData.first_name}
+                onChange={handleInputChange}
+                disabled={loading}
+                required
+                placeholder="First Name"
+                className="w-full rounded-lg border border-blue-300 bg-white/70 px-4 py-3 text-blue-900 placeholder-blue-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition"
+              />
+            </motion.div>
+            <motion.div variants={childVariants}>
+              <label className="block mb-1 text-sm font-semibold text-blue-700">Last Name</label>
+              <input
+                type="text"
+                name="last_name"
+                value={userData.last_name}
+                onChange={handleInputChange}
+                disabled={loading}
+                required
+                placeholder="Last Name"
+                className="w-full rounded-lg border border-blue-300 bg-white/70 px-4 py-3 text-blue-900 placeholder-blue-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition"
+              />
+            </motion.div>
+          </div>
+
+          {/* Gender and mobile */}
+          <div className="grid grid-cols-2 gap-4">
+            <motion.div variants={childVariants}>
+              <label className="block mb-1 text-sm font-semibold text-blue-700">Gender</label>
+              {/* Assuming Select component is properly imported and styled */}
+              <Select 
+                onValueChange={handleGenderChange} 
+                value={userData.gender}
+              >
+                <SelectTrigger className="w-full h-11 rounded-lg border border-blue-300 bg-white/70 focus:ring-2 focus:ring-blue-400 transition">
+                  <SelectValue placeholder="Select Gender" />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl">
+                  <SelectGroup>
+                    <SelectLabel>Gender</SelectLabel>
+                    {genderData.map((g, i) => (
+                      <SelectItem key={i} value={g}>{g}</SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </motion.div>
+            <motion.div variants={childVariants}>
+              <label className="block mb-1 text-sm font-semibold text-blue-700">Mobile Number</label>
+              <input
+                type="tel"
+                name="mobile_no"
+                value={userData.mobile_no}
+                onChange={handleInputChange}
+                disabled={loading}
+                placeholder="Mobile Number"
+                className="w-full rounded-lg border border-blue-300 bg-white/70 px-4 py-3 text-blue-900 placeholder-blue-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition"
+              />
+            </motion.div>
+          </div>
+
+          {/* Passwords */}
+          <div className="grid grid-cols-2 gap-4">
+            <motion.div variants={childVariants}>
+              <label className="block mb-1 text-sm font-semibold text-blue-700">Password</label>
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="new_password"
+                  value={userData.new_password}
+                  onChange={handleInputChange}
+                  disabled={loading}
+                  placeholder="Enter password"
+                  required
+                  className="w-full rounded-lg border border-blue-300 bg-white/70 px-4 py-3 pr-11 text-blue-900 placeholder-blue-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition"
+                />
+                <button
+                  type="button"
+                  className="absolute right-3 top-3 text-blue-600 hover:text-blue-800 transition"
+                  onClick={() => setShowPassword((v) => !v)}
+                  disabled={loading}
+                  aria-label="Toggle Password Visibility"
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
+            </motion.div>
+            <motion.div variants={childVariants}>
+              <label className="block mb-1 text-sm font-semibold text-blue-700">Confirm Password</label>
+              <div className="relative">
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  name="confirm_password"
+                  value={userData.confirm_password}
+                  onChange={handleInputChange}
+                  disabled={loading}
+                  placeholder="Confirm password"
+                  required
+                  className={`w-full rounded-lg border px-4 py-3 pr-11 text-blue-900 placeholder-blue-400 shadow-sm focus:outline-none focus:ring-2 transition ${
+                    passwordError
+                      ? 'border-red-400 focus:ring-red-400'
+                      : passwordsMatch && userData.confirm_password
+                      ? 'border-green-400 focus:ring-green-400'
+                      : 'border-blue-300 focus:ring-blue-400'
+                  } bg-white/70`}
+                />
+                <div className="absolute right-10 top-3">
+                  {userData.confirm_password && (
+                    passwordsMatch ? (
+                      <CheckCircle2 size={20} className="text-green-500" />
+                    ) : (
+                      <AlertCircle size={20} className="text-red-500" />
+                    )
+                  )}
+                </div>
+                <button
+                  type="button"
+                  className="absolute right-3 top-3 text-blue-600 hover:text-blue-800 transition"
+                  onClick={() => setShowConfirmPassword((v) => !v)}
+                  disabled={loading}
+                  aria-label="Toggle Confirm Password Visibility"
+                >
+                  {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+
+          {/* Password error/success messages */}
+          {passwordError && (
+            <motion.div
+              variants={childVariants}
+              className="flex items-center gap-2 text-red-600 bg-red-50 rounded-lg p-2 text-sm"
+            >
+              <AlertCircle size={16} /> <span>{passwordError}</span>
+            </motion.div>
+          )}
+          {passwordsMatch && userData.confirm_password && !passwordError && (
+            <motion.div
+              variants={childVariants}
+              className="flex items-center gap-2 text-green-600 bg-green-50 rounded-lg p-2 text-sm"
+            >
+              <CheckCircle2 size={16} /> <span>Passwords match perfectly!</span>
+            </motion.div>
+          )}
+
+          {/* Terms and Conditions */}
+          <motion.div variants={childVariants} className="flex items-center space-x-2 text-blue-600 text-sm">
+            <input
+              type="checkbox"
+              id="terms"
+              required
+              className="w-4 h-4 rounded border border-blue-400 checked:bg-blue-600 focus:ring-2 focus:ring-blue-400"
+            />
+            <label htmlFor="terms" className="select-none">
+              I agree to the{" "}
+              <a href="#" className="font-semibold hover:underline">
+                Terms and Conditions
+              </a>{" "}
+              and{" "}
+              <a href="#" className="font-semibold hover:underline">
+                Privacy Policy
+              </a>
+            </label>
+          </motion.div>
+
+          {/* Submit Button */}
+          <motion.button
+            variants={childVariants}
+            type="submit"
+            disabled={
+              loading ||
+              passwordError ||
+              !passwordsMatch ||
+              !userData.email ||
+              !userData.first_name ||
+              !userData.new_password
+            }
+            className={`w-full py-3 rounded-xl font-bold text-white bg-gradient-to-r from-blue-600 to-purple-600 shadow-lg hover:brightness-110 hover:scale-105 transition transform disabled:opacity-50 disabled:cursor-not-allowed`}
+          >
+            {loading ? "Creating Account..." : "Create Account"}
+          </motion.button>
+        </form>
+        {/* Already have account */}
+        <motion.p 
+          variants={childVariants}
+          className="text-center text-sm text-blue-700 mt-6"
+        >
+          Already have an account?{" "}
+          <a href="/mycard/login" className="font-semibold hover:underline">
+            Sign in here
+          </a>
+        </motion.p>
+
+        <SuccessModal isOpen={showSuccessModal} onClose={handleCloseModal} />
+      </motion.div>
+    </div>
+  );
+}
