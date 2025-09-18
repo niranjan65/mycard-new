@@ -1,6 +1,8 @@
 // downloadHelpers.js - Helper functions for downloading documents from ERPNext
+// Updated with Authorization token for authenticated API calls
 
-const API_BASE_URL = 'http://202.165.197.58:8002'; // Your ERPNext server URL
+const API_BASE_URL = 'http://202.165.197.58:8002';
+const API_TOKEN = '5312bae822ce9d8:a2f1543d757a43a';
 
 /**
  * Download Lab Test Report
@@ -14,7 +16,6 @@ export const handleDownloadLabReport = (labTestId) => {
 
   console.log('Downloading lab report:', labTestId);
   
-  // Construct the URL properly
   const baseUrl = API_BASE_URL + '/api/method/frappe.utils.print_format.download_pdf';
   const params = new URLSearchParams({
     doctype: 'Lab Test',
@@ -28,12 +29,23 @@ export const handleDownloadLabReport = (labTestId) => {
   const fullUrl = baseUrl + '?' + params.toString();
   console.log('Opening URL:', fullUrl);
   
-  // Open the URL in a new tab
-  const newWindow = window.open(fullUrl, '_blank');
-  
-  if (!newWindow) {
-    alert('Please allow popups for this site to download the report.');
-  }
+  // First check if we can access with auth, then open
+  fetch(fullUrl, {
+    headers: {
+      'Authorization': `token ${API_TOKEN}`
+    }
+  }).then(response => {
+    if (response.ok) {
+      window.open(fullUrl, '_blank');
+    } else {
+      console.error('Failed to authenticate for download');
+      alert('Failed to download report. Please ensure you are logged in.');
+    }
+  }).catch(error => {
+    console.error('Error checking download access:', error);
+    // Try opening anyway
+    window.open(fullUrl, '_blank');
+  });
 };
 
 /**
@@ -60,7 +72,6 @@ export const handleDownloadPrescription = (appointmentId, invoiceId) => {
     return;
   }
 
-  // Construct the URL properly
   const baseUrl = API_BASE_URL + '/api/method/frappe.utils.print_format.download_pdf';
   const params = new URLSearchParams({
     doctype: doctype,
@@ -74,12 +85,23 @@ export const handleDownloadPrescription = (appointmentId, invoiceId) => {
   const fullUrl = baseUrl + '?' + params.toString();
   console.log('Opening URL:', fullUrl);
   
-  // Open the URL in a new tab
-  const newWindow = window.open(fullUrl, '_blank');
-  
-  if (!newWindow) {
-    alert('Please allow popups for this site to download the document.');
-  }
+  // First check if we can access with auth, then open
+  fetch(fullUrl, {
+    headers: {
+      'Authorization': `token ${API_TOKEN}`
+    }
+  }).then(response => {
+    if (response.ok) {
+      window.open(fullUrl, '_blank');
+    } else {
+      console.error('Failed to authenticate for download');
+      alert('Failed to download document. Please ensure you are logged in.');
+    }
+  }).catch(error => {
+    console.error('Error checking download access:', error);
+    // Try opening anyway
+    window.open(fullUrl, '_blank');
+  });
 };
 
 /**
@@ -94,7 +116,6 @@ export const handleDownloadEncounter = (encounterId) => {
 
   console.log('Downloading patient encounter:', encounterId);
   
-  // Construct the URL properly
   const baseUrl = API_BASE_URL + '/api/method/frappe.utils.print_format.download_pdf';
   const params = new URLSearchParams({
     doctype: 'Patient Encounter',
@@ -108,12 +129,23 @@ export const handleDownloadEncounter = (encounterId) => {
   const fullUrl = baseUrl + '?' + params.toString();
   console.log('Opening URL:', fullUrl);
   
-  // Open the URL in a new tab
-  const newWindow = window.open(fullUrl, '_blank');
-  
-  if (!newWindow) {
-    alert('Please allow popups for this site to download the encounter document.');
-  }
+  // First check if we can access with auth, then open
+  fetch(fullUrl, {
+    headers: {
+      'Authorization': `token ${API_TOKEN}`
+    }
+  }).then(response => {
+    if (response.ok) {
+      window.open(fullUrl, '_blank');
+    } else {
+      console.error('Failed to authenticate for download');
+      alert('Failed to download encounter document. Please ensure you are logged in.');
+    }
+  }).catch(error => {
+    console.error('Error checking download access:', error);
+    // Try opening anyway
+    window.open(fullUrl, '_blank');
+  });
 };
 
 /**
@@ -130,7 +162,6 @@ export const handleDownloadDocument = (doctype, docname, format = 'Standard') =>
 
   console.log('Downloading document:', doctype, docname);
   
-  // Construct the URL properly
   const baseUrl = API_BASE_URL + '/api/method/frappe.utils.print_format.download_pdf';
   const params = new URLSearchParams({
     doctype: doctype,
@@ -144,12 +175,23 @@ export const handleDownloadDocument = (doctype, docname, format = 'Standard') =>
   const fullUrl = baseUrl + '?' + params.toString();
   console.log('Opening URL:', fullUrl);
   
-  // Open the URL in a new tab
-  const newWindow = window.open(fullUrl, '_blank');
-  
-  if (!newWindow) {
-    alert('Please allow popups for this site to download the document.');
-  }
+  // First check if we can access with auth, then open
+  fetch(fullUrl, {
+    headers: {
+      'Authorization': `token ${API_TOKEN}`
+    }
+  }).then(response => {
+    if (response.ok) {
+      window.open(fullUrl, '_blank');
+    } else {
+      console.error('Failed to authenticate for download');
+      alert('Failed to download document. Please ensure you are logged in.');
+    }
+  }).catch(error => {
+    console.error('Error checking download access:', error);
+    // Try opening anyway
+    window.open(fullUrl, '_blank');
+  });
 };
 
 /**
@@ -166,14 +208,13 @@ export const handleViewInDesk = (doctype, docname) => {
   const deskUrl = API_BASE_URL + '/app/' + doctype.toLowerCase().replace(/ /g, '-') + '/' + docname;
   console.log('Opening desk URL:', deskUrl);
   
-  const newWindow = window.open(deskUrl, '_blank');
-  
-  if (!newWindow) {
-    alert('Please allow popups for this site to view the document.');
-  }
+  window.open(deskUrl, '_blank');
 };
 
-// Alternative download method using fetch if window.open is blocked
+/**
+ * Alternative download method using fetch to get the actual PDF blob
+ * This method downloads the file directly instead of opening in a new tab
+ */
 export const downloadWithFetch = async (doctype, docname) => {
   try {
     const baseUrl = API_BASE_URL + '/api/method/frappe.utils.print_format.download_pdf';
@@ -190,7 +231,10 @@ export const downloadWithFetch = async (doctype, docname) => {
     
     const response = await fetch(fullUrl, {
       method: 'GET',
-      credentials: 'include', // Include cookies for authentication
+      headers: {
+        'Authorization': `token ${API_TOKEN}`
+      },
+      credentials: 'include' // Include cookies if needed
     });
     
     if (response.ok) {
@@ -213,11 +257,77 @@ export const downloadWithFetch = async (doctype, docname) => {
   }
 };
 
+/**
+ * Download with authentication and better error handling
+ * @param {string} doctype - The DocType name
+ * @param {string} docname - The document name/ID  
+ * @param {boolean} directDownload - If true, downloads file directly. If false, opens in new tab
+ */
+export const downloadWithAuth = async (doctype, docname, directDownload = false) => {
+  if (!doctype || !docname) {
+    console.error('DocType and DocName are required');
+    return;
+  }
+
+  const baseUrl = API_BASE_URL + '/api/method/frappe.utils.print_format.download_pdf';
+  const params = new URLSearchParams({
+    doctype: doctype,
+    name: docname,
+    format: 'Standard',
+    no_letterhead: 0,
+    letterhead: 'Standard',
+    settings: '{}'
+  });
+  
+  const fullUrl = baseUrl + '?' + params.toString();
+
+  if (directDownload) {
+    // Direct download using fetch
+    await downloadWithFetch(doctype, docname);
+  } else {
+    // Open in new tab with auth check
+    try {
+      const response = await fetch(fullUrl, {
+        method: 'HEAD', // Just check if we can access
+        headers: {
+          'Authorization': `token ${API_TOKEN}`
+        }
+      });
+      
+      if (response.ok) {
+        // Create a form with auth header to open in new tab
+        const form = document.createElement('form');
+        form.method = 'GET';
+        form.action = fullUrl;
+        form.target = '_blank';
+        
+        // Add authorization as a hidden field (if the server accepts it)
+        const authInput = document.createElement('input');
+        authInput.type = 'hidden';
+        authInput.name = 'Authorization';
+        authInput.value = `token ${API_TOKEN}`;
+        form.appendChild(authInput);
+        
+        document.body.appendChild(form);
+        form.submit();
+        document.body.removeChild(form);
+      } else {
+        throw new Error('Authentication failed');
+      }
+    } catch (error) {
+      console.error('Error with authenticated download:', error);
+      // Fallback: try direct download
+      await downloadWithFetch(doctype, docname);
+    }
+  }
+};
+
 export default {
   handleDownloadLabReport,
   handleDownloadPrescription,
   handleDownloadEncounter,
   handleDownloadDocument,
   handleViewInDesk,
-  downloadWithFetch
+  downloadWithFetch,
+  downloadWithAuth
 };

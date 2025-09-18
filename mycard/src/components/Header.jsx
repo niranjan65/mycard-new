@@ -383,9 +383,9 @@ const Header = () => {
         alignItems: 'center',
         justifyContent: 'space-between'
       }}>
-        <div>
+        {/* <div>
           <img className='h-16 mr-12' src='/assets/erpnext/images/mycard.png' alt="MyCard Logo" />
-        </div>
+        </div> */}
         {/* Logo */}
         <Link to="/trade" style={{
           fontSize: '28px',

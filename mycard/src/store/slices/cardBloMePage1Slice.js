@@ -14,7 +14,7 @@ export const fetchCardBloMePage1 = createAsyncThunk(
         withCredentials: true, // in case cookies/session are used
       });
 
-      console.log("data...... in slice", response)
+      console.log("data...... in slice", docName, response)
       return response.data.data; // frappe returns { data: {...} }
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
@@ -44,6 +44,7 @@ const cardBloMePage1Slice = createSlice({
       .addCase(fetchCardBloMePage1.pending, (state) => {
         state.loading = true;
         state.error = null;
+        state.data = null; 
       })
       .addCase(fetchCardBloMePage1.fulfilled, (state, action) => {
         state.loading = false;

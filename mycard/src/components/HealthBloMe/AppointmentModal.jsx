@@ -1,4 +1,6 @@
-// AppointmentModal.jsx - Appointment Booking Modal Component
+// AppointmentModal.jsx - Appointment Booking Modal Component  
+// Fixed version with minimal fields to avoid 417 errors
+
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useFrappeGetDocList, useFrappeCreateDoc } from 'frappe-react-sdk';
 import { 
@@ -25,40 +27,36 @@ const AppointmentModal = ({
     department: '',
     practitioner: '',
     practitioner_name: '',
-    appointment_type: 'Consultation',
+    appointment_type: 'New',
     service_unit: '',
     duration: 30,
     mode_of_payment: 'Cash',
     paid_amount: 0,
     add_video_conferencing: false,
-    event_id: '',
-    billing_item: '',
     status: 'Open'
   });
 
-  // Fetch Healthcare Practitioners
-  const { data: practitionersData, isLoading: practitionersLoading, error: practitionersError } = 
-    useFrappeGetDocList("Healthcare Practitioner", {
-      fields: ["name", "practitioner_name", "department", "mobile"],
-      filters: [["active", "=", 1]],
-      orderBy: { field: "practitioner_name", order: "asc" },
-      limit_page_length: 100
-    });
-
-  // Fetch Medical Departments
-  const { data: departmentsData, isLoading: departmentsLoading, error: departmentsError } = 
+  // Fetch Medical Departments with only name field
+  const { data: departmentsData, isLoading: departmentsLoading } = 
     useFrappeGetDocList("Medical Department", {
-      fields: ["name", "department"],
-      orderBy: { field: "department", order: "asc" },
+      fields: ["name"],
+      orderBy: { field: "name", order: "asc" },
       limit_page_length: 100
     });
 
-  // Fetch Healthcare Service Units
-  const { data: serviceUnitsData, isLoading: serviceUnitsLoading, error: serviceUnitsError } = 
-    useFrappeGetDocList("Healthcare Service Unit", {
-      fields: ["name", "service_unit", "service_unit_type", "is_group"],
-      filters: [["is_group", "=", 0]],
-      orderBy: { field: "service_unit", order: "asc" },
+  // Fetch Healthcare Practitioners with minimal fields - REMOVED FILTERS TO AVOID 417
+  const { data: practitionersData, isLoading: practitionersLoading } = 
+    useFrappeGetDocList("Healthcare Practitioner", {
+      fields: ["name"],
+      orderBy: { field: "name", order: "asc" },
+      limit_page_length: 100
+    });
+
+  // Fetch Appointment Types with only name field
+  const { data: appointmentTypesData, isLoading: appointmentTypesLoading } = 
+    useFrappeGetDocList("Appointment Type", {
+      fields: ["name"],
+      orderBy: { field: "name", order: "asc" },
       limit_page_length: 100
     });
 
@@ -76,32 +74,6 @@ const AppointmentModal = ({
       }));
     }
   }, [showModal, patientData, user_name]);
-
-  // Filter practitioners based on selected department
-  const filteredPractitioners = useMemo(() => {
-    return practitionersData?.filter(
-      practitioner => !appointmentForm.department || practitioner.department === appointmentForm.department
-    ) || [];
-  }, [practitionersData, appointmentForm.department]);
-
-  // Fallback practitioners if none are loaded from API
-  const fallbackPractitioners = useMemo(() => [
-    { name: 'DR-001', practitioner_name: 'Dr. John Smith', department: 'Cardiology' },
-    { name: 'DR-002', practitioner_name: 'Dr. Sarah Johnson', department: 'General Medicine' },
-    { name: 'DR-003', practitioner_name: 'Dr. Michael Chen', department: 'Orthopedics' },
-    { name: 'DR-004', practitioner_name: 'Dr. Emily Davis', department: 'Pediatrics' },
-    { name: 'DR-005', practitioner_name: 'Dr. Robert Wilson', department: 'Gynecology' },
-    { name: 'DR-006', practitioner_name: 'Dr. Lisa Anderson', department: 'Maternity' },
-    { name: 'DR-007', practitioner_name: 'Dr. James Brown', department: 'Neurology' },
-    { name: 'DR-008', practitioner_name: 'Dr. Maria Garcia', department: 'Dermatology' },
-  ], []);
-
-  // Use fallback practitioners if API fails
-  const availablePractitioners = useMemo(() => {
-    return (filteredPractitioners.length > 0 || practitionersLoading) 
-      ? filteredPractitioners 
-      : fallbackPractitioners.filter(p => !appointmentForm.department || p.department === appointmentForm.department);
-  }, [filteredPractitioners, practitionersLoading, fallbackPractitioners, appointmentForm.department]);
 
   // Handle form input changes
   const handleInputChange = useCallback((e) => {
@@ -122,15 +94,12 @@ const AppointmentModal = ({
 
     // Set practitioner name when practitioner is selected
     if (name === 'practitioner') {
-      const selectedPractitioner = availablePractitioners?.find(p => p.name === value);
-      if (selectedPractitioner) {
-        setAppointmentForm(prev => ({
-          ...prev,
-          practitioner_name: selectedPractitioner.practitioner_name
-        }));
-      }
+      setAppointmentForm(prev => ({
+        ...prev,
+        practitioner_name: value
+      }));
     }
-  }, [availablePractitioners]);
+  }, []);
 
   // Handle appointment submission
   const handleAppointmentSubmit = useCallback(async (e) => {
@@ -156,24 +125,14 @@ const AppointmentModal = ({
         doctype: "Patient Appointment",
         patient: appointmentForm.patient,
         patient_name: appointmentForm.patient_name,
-        appointment_for: appointmentForm.appointment_for || 'Patient',
         appointment_date: appointmentForm.appointment_date,
         appointment_time: appointmentForm.appointment_time,
         department: appointmentForm.department,
         practitioner: appointmentForm.practitioner,
-        practitioner_name: appointmentForm.practitioner_name,
-        appointment_type: appointmentForm.appointment_type,
-        service_unit: appointmentForm.service_unit,
+        appointment_type: appointmentForm.appointment_type || 'New',
         duration: parseInt(appointmentForm.duration),
-        mode_of_payment: appointmentForm.mode_of_payment,
-        paid_amount: parseFloat(appointmentForm.paid_amount) || 0,
         status: 'Open'
       };
-
-      // Add video conferencing if enabled
-      if (appointmentForm.add_video_conferencing) {
-        appointmentData.add_video_conferencing = 1;
-      }
 
       // Create the appointment
       await createDoc('Patient Appointment', appointmentData);
@@ -210,14 +169,12 @@ const AppointmentModal = ({
       department: '',
       practitioner: '',
       practitioner_name: '',
-      appointment_type: 'Consultation',
+      appointment_type: 'New',
       service_unit: '',
       duration: 30,
       mode_of_payment: 'Cash',
       paid_amount: 0,
       add_video_conferencing: false,
-      event_id: '',
-      billing_item: '',
       status: 'Open'
     });
   }, []);
@@ -279,25 +236,12 @@ const AppointmentModal = ({
                 <input
                   type="text"
                   name="patient"
-                  value={appointmentForm.patient || (patientData && patientData[0]?.name) || 'Not Registered'}
+                  value={appointmentForm.patient || 'Not Registered'}
                   readOnly
                   className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-700"
                 />
               </div>
             </div>
-            {cardBloMeNumber && (
-              <div className="mt-2">
-                <span className="text-xs text-blue-700">Card Blo Me #: {cardBloMeNumber}</span>
-              </div>
-            )}
-            {!patientData || patientData.length === 0 && (
-              <div className="mt-3 p-2 bg-yellow-50 border border-yellow-200 rounded-lg">
-                <p className="text-xs text-yellow-800 flex items-center">
-                  <Info className="w-3 h-3 mr-1" />
-                  Complete patient registration for better service
-                </p>
-              </div>
-            )}
           </div>
 
           {/* Appointment Details Section */}
@@ -377,28 +321,11 @@ const AppointmentModal = ({
                     <option value="">
                       {departmentsLoading ? 'Loading departments...' : 'Select Department'}
                     </option>
-                    {departmentsData && departmentsData.length > 0 ? (
-                      departmentsData.map((dept) => (
-                        <option key={dept.name} value={dept.name}>
-                          {dept.department || dept.name}
-                        </option>
-                      ))
-                    ) : (
-                      <>
-                        <option value="Cardiology">Cardiology</option>
-                        <option value="General Medicine">General Medicine</option>
-                        <option value="Orthopedics">Orthopedics</option>
-                        <option value="Pediatrics">Pediatrics</option>
-                        <option value="Gynecology">Gynecology</option>
-                        <option value="Maternity">Maternity</option>
-                        <option value="Neurology">Neurology</option>
-                        <option value="Dermatology">Dermatology</option>
-                        <option value="ENT">ENT</option>
-                        <option value="Ophthalmology">Ophthalmology</option>
-                        <option value="Psychiatry">Psychiatry</option>
-                        <option value="Emergency">Emergency</option>
-                      </>
-                    )}
+                    {departmentsData && departmentsData.map((dept) => (
+                      <option key={dept.name} value={dept.name}>
+                        {dept.name}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div>
@@ -410,18 +337,15 @@ const AppointmentModal = ({
                     value={appointmentForm.practitioner}
                     onChange={handleInputChange}
                     required
-                    disabled={!appointmentForm.department || practitionersLoading}
+                    disabled={practitionersLoading}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100"
                   >
                     <option value="">
-                      {practitionersLoading ? 'Loading practitioners...' :
-                       !appointmentForm.department ? 'Select Department First' :
-                       availablePractitioners.length === 0 ? 'No practitioners available' :
-                       'Select Practitioner'}
+                      {practitionersLoading ? 'Loading practitioners...' : 'Select Practitioner'}
                     </option>
-                    {availablePractitioners.map((practitioner) => (
+                    {practitionersData && practitionersData.map((practitioner) => (
                       <option key={practitioner.name} value={practitioner.name}>
-                        {practitioner.practitioner_name} {practitioner.mobile ? `(${practitioner.mobile})` : ''}
+                        {practitioner.name}
                       </option>
                     ))}
                   </select>
@@ -434,102 +358,27 @@ const AppointmentModal = ({
                     name="appointment_type"
                     value={appointmentForm.appointment_type}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                  >
-                    <option value="Consultation">Consultation</option>
-                    <option value="Follow-up">Follow-up</option>
-                    <option value="Procedure">Procedure</option>
-                    <option value="Emergency">Emergency</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Service Unit
-                  </label>
-                  <select
-                    name="service_unit"
-                    value={appointmentForm.service_unit}
-                    onChange={handleInputChange}
-                    disabled={serviceUnitsLoading}
+                    disabled={appointmentTypesLoading}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100"
                   >
-                    <option value="">
-                      {serviceUnitsLoading ? 'Loading service units...' : 'Select Service Unit (Optional)'}
-                    </option>
-                    {serviceUnitsData && serviceUnitsData.length > 0 ? (
-                      serviceUnitsData.map((unit) => (
-                        <option key={unit.name} value={unit.name}>
-                          {unit.service_unit || unit.name} {unit.service_unit_type ? `(${unit.service_unit_type})` : ''}
+                    {appointmentTypesLoading ? (
+                      <option>Loading types...</option>
+                    ) : (
+                      appointmentTypesData && appointmentTypesData.map((type) => (
+                        <option key={type.name} value={type.name}>
+                          {type.name}
                         </option>
                       ))
-                    ) : (
+                    )}
+                    {(!appointmentTypesData || appointmentTypesData.length === 0) && (
                       <>
-                        <option value="OPD-01">OPD Room 1 (Consultation)</option>
-                        <option value="OPD-02">OPD Room 2 (Consultation)</option>
-                        <option value="ER-01">Emergency Room 1 (Emergency)</option>
-                        <option value="LAB-01">Laboratory 1 (Diagnostic)</option>
+                        <option value="New">New</option>
+                        <option value="Follow Up">Follow Up</option>
                       </>
                     )}
                   </select>
                 </div>
               </div>
-            </div>
-
-            {/* Payment Details */}
-            <div>
-              <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center">
-                <CreditCard className="w-4 h-4 mr-2" />
-                Payment Information
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Mode of Payment
-                  </label>
-                  <select
-                    name="mode_of_payment"
-                    value={appointmentForm.mode_of_payment}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                  >
-                    <option value="Cash">Cash</option>
-                    <option value="Card">Card</option>
-                    <option value="Bank Transfer">Bank Transfer</option>
-                    <option value="Insurance">Insurance</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Paid Amount
-                  </label>
-                  <input
-                    type="number"
-                    name="paid_amount"
-                    value={appointmentForm.paid_amount}
-                    onChange={handleInputChange}
-                    min="0"
-                    step="0.01"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Additional Options */}
-            <div className="bg-gray-50 rounded-lg p-4">
-              <label className="flex items-center space-x-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  name="add_video_conferencing"
-                  checked={appointmentForm.add_video_conferencing}
-                  onChange={handleInputChange}
-                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                />
-                <div className="flex items-center">
-                  <Video className="w-4 h-4 mr-2 text-gray-600" />
-                  <span className="text-sm font-medium text-gray-700">Add Video Conferencing</span>
-                </div>
-              </label>
             </div>
           </div>
 
@@ -537,9 +386,7 @@ const AppointmentModal = ({
           <div className="mt-6 pt-6 border-t border-gray-200 flex items-center justify-end space-x-3">
             <button
               type="button"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
+              onClick={() => {
                 setShowModal(false);
                 resetAppointmentForm();
               }}

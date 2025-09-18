@@ -1,5 +1,5 @@
 
-import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import React, { useState, useCallback, useMemo, useEffect, use } from 'react';
 import './App.css';
 import Form1 from './from1.jsx';
 import Form2 from './from2.jsx';
@@ -12,7 +12,9 @@ import { toast } from 'sonner';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchCardBloMePage1, updateCardBloMePage1 } from './store/slices/cardBloMePage1Slice';
 import { AlarmCheck } from 'lucide-react';
-
+import { useFrappeFileUpload, useFrappeGetDoc, useFrappeUpdateDoc } from 'frappe-react-sdk';
+import { GetPrintHtml } from "./Printformet"
+import { fromTheme } from 'tailwind-merge';
 const CardBloMe = () => {
   const [currentForm, setCurrentForm] = useState(1);
   const [isSaving, setIsSaving] = useState(false);
@@ -20,6 +22,64 @@ const CardBloMe = () => {
   const [hasSaved, setHasSaved] = useState({ 1: false, 2: false, 3: false, 4: false });
   const [isFormSubmitted, setIsFormSubmitted] = useState(false);
   const [isupdating, setisupdating] = useState(false)
+  const [profilePicture, setProfilePicture] = useState(null); // holds the file or URL
+  const [profileUrl, setProfileUrl] = useState(''); // preview URL
+
+  const [spouseData, setSpouseData] = useState([]);
+  const [childrenData, setChildrenData] = useState([]);
+
+  const [bankData, setBankData] = useState([]);
+
+  const user_id = Cookies.get('user_id');
+
+  const { data: userDetails } = useFrappeGetDoc('User', user_id)
+
+  console.log("userDetails", userDetails)
+
+
+
+  const handleProfilePictureChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setProfilePicture(file);
+      setProfileUrl(URL.createObjectURL(file));
+    }
+    console.log("profile picture changed", profilePicture, profileUrl)
+  };
+
+  const { upload, progress, isCompleted, reset } = useFrappeFileUpload();
+  const { updateDoc } = useFrappeUpdateDoc()
+
+  const uploadProfilePicture = async () => {
+    if (!profilePicture) return;
+
+    try {
+
+      const user = currentUser.name || Cookies.get("user_id");
+      // Adjust the file field mapping as per Frappe doctype schema:
+      const fileDoc = await upload(profilePicture, {
+        isPrivate: true,
+        doctype: 'User',
+        docname: user, // Usually user's name or user_id
+        fieldname: 'user_image'
+      });
+
+      if (fileDoc?.file_url) {
+        setProfileUrl(fileDoc.file_url);
+        setProfilePicture(null);
+        await updateDoc('User', user, { user_image: fileDoc.file_url });
+        // Optionally update the linked User doc image field via REST if needed:
+        /*
+        await updateDoc('User', user, { user_image: fileDoc.file_url });
+        */
+        alert("Profile picture uploaded successfully!");
+      }
+      reset(); // Reset upload state for next time
+    } catch (error) {
+      alert("Upload failed. Please try again.");
+      console.error(error);
+    }
+  };
 
 
 
@@ -232,17 +292,22 @@ const CardBloMe = () => {
   const { currentUser, loading, error } = useSelector((state) => state.user);
 
 
-  console.log("Card Blo Me Page1 Data from Redux:", data);
+  // console.log("Card Blo Me Page1 Data from Redux:", currentUser);
 
 
 
   const docName = currentUser?.card_blo_me_number;
 
   useEffect(() => {
+    console.log("Current User from Redux:", currentUser);
+    dispatch(fetchCardBloMePage1(currentUser?.card_blo_me_number));
+  }, [currentUser]);
+
+  useEffect(() => {
     if (docName) {
       dispatch(fetchCardBloMePage1(docName));
     }
-  }, [dispatch, docName]);
+  }, [dispatch, currentUser]);
 
   useEffect(() => {
     if (data) {
@@ -255,7 +320,7 @@ const CardBloMe = () => {
   //   fetch(`/api/resource/User/${current_user}`, {
   //     headers: {
   //        "Accept": "application/json",
-  //        'Authorization': 'token 508b6fa8bc5d7b1:bb4df2c976ee21c',
+  //        'Authorization': 'token 1a5cfcab01776e5:63628feef82aa59',
   //        },
   //       credentials: "omit"
   //   })
@@ -278,7 +343,7 @@ const CardBloMe = () => {
   //     return fetch(`/api/resource/Card%20Blo%20Me%20Page1/${data.data.card_blo_me_number}`, {
   //       headers: {
   //          "Accept": "application/json",
-  //          'Authorization': 'token 508b6fa8bc5d7b1:bb4df2c976ee21c',
+  //          'Authorization': 'token 1a5cfcab01776e5:63628feef82aa59',
   //          },
   //          credentials: "omit"
   //     });
@@ -564,13 +629,36 @@ const CardBloMe = () => {
     }
   }, [formData]);
 
+  useEffect(() => {
+    const localData = localStorage.getItem(`cardBloMeForm${currentForm}`);
+    if (localData) {
+      setFormData(JSON.parse(localData));
+    }
+  }, [currentForm]);
+
+
+  const saveFormToLocalStorage = (formNumber, formValues) => {
+    localStorage.setItem(`cardBloMeForm${formNumber}`, JSON.stringify(formValues));
+  };
+
 
   const handleSaveForm = useCallback(async () => {
     if (!isFormValid(currentForm)) return;
+
+    // saveFormToLocalStorage(currentForm, formData);
+
     if (!validateForm(currentForm)) return;
+
+    const mergedFormData = {
+      ...formData,
+      spouseData,
+      childrenData,
+      bankData
+    }
 
     try {
       setIsSaving(true);
+      saveFormToLocalStorage(currentForm, mergedFormData);
       await new Promise(r => setTimeout(r, 1500));
       setHasSaved(prev => ({ ...prev, [currentForm]: true }));
 
@@ -594,7 +682,7 @@ const CardBloMe = () => {
     } finally {
       setIsSaving(false);
     }
-  }, [currentForm, isFormValid]);
+  }, [currentForm, formData, spouseData, bankData, childrenData, isFormValid]);
 
   // const handleSaveForm = useCallback(async () => {
   //   if (!isFormValid(currentForm)) return;
@@ -619,11 +707,7 @@ const CardBloMe = () => {
 
 
       // Get child table data from hidden inputs
-      const spouseDataElements = document.querySelector('[data-spouse-data="true"]');
-      const childrenDataElements = document.querySelector('[data-children-data="true"]');
-
-      const spouseData = spouseDataElements ? JSON.parse(spouseDataElements.value || '[]') : [];
-      const childrenData = childrenDataElements ? JSON.parse(childrenDataElements.value || '[]') : [];
+      
 
       // Step 1: Create Card Blo Me Page1 DocType
       console.log("Step 1: Creating Card Blo Me Page1...");
@@ -689,7 +773,7 @@ const CardBloMe = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'token 508b6fa8bc5d7b1:bb4df2c976ee21c',
+          'Authorization': 'token 1a5cfcab01776e5:63628feef82aa59',
         },
         credentials: "omit",
         body: JSON.stringify(erpNextPayload1),
@@ -709,31 +793,12 @@ const CardBloMe = () => {
       console.log("Result from Step 1:", page1Name);
 
 
-      const card_blome_payload = {
-        card_blo_me_number: result1.data.name
-      }
-      console.log("Updating User with Card Blo Me Number:", card_blome_payload);
-      const update_user = await fetch(`/api/resource/User/${currentUser}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'token 508b6fa8bc5d7b1:bb4df2c976ee21c',
-        },
-        credentials: "omit",
-        body: JSON.stringify(card_blome_payload),
-      });
-      if (update_user.ok) {
-        console.log("User updated with Card Blo Me Number:", result1.data.name);
-      } else {
-        const errorText = await update_user.text();
-        console.error(`Failed to update user: ${update_user.status} ${update_user.statusText} - ${errorText}`);
-      }
 
-      console.log("Step 1 completed. Page1 ID:", page1Name);
 
       // Step 2: Create Card Blo Me Page2 DocType with reference to Page1
       console.log("Step 2: Creating Card Blo Me Page2...");
 
+      console.log("form ka data", formData);
       const erpNextPayload2 = {
         // Reference to Page1
         from1: page1Name,
@@ -772,9 +837,10 @@ const CardBloMe = () => {
 
         // Child Tables (only if married)
         ...(formData.marital_status === "Married" && {
-          table_31: spouseData, // CRM Details of Spose
-          table_32: childrenData, // CRM Details of Children
+          table_31: spouseData, 
+          table_32: childrenData, 
         }),
+        
 
         // Basic Health Information
         date: formData.date,
@@ -796,11 +862,13 @@ const CardBloMe = () => {
         blo_me_no: formData.blo_me_no,
       };
 
+      console.log("Payload for Step 2:", erpNextPayload2);
+
       const response2 = await fetch('/api/resource/Card Blo Me Page2', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'token 508b6fa8bc5d7b1:bb4df2c976ee21c',
+          'Authorization': 'token 1a5cfcab01776e5:63628feef82aa59',
         },
         credentials: "omit",
         body: JSON.stringify(erpNextPayload2),
@@ -821,7 +889,7 @@ const CardBloMe = () => {
       const erpNextPayload3 = {
         // Reference to Page2
         from2: page2Name,
-
+        from1: page1Name,
         // Emergency Contact Details
         emergency_first_name: formData.emergency_first_name,
         emergency_middle_name: formData.emergency_middle_name,
@@ -861,9 +929,13 @@ const CardBloMe = () => {
         kin_office_email: formData.kin_office_email,
 
         // Bank Details
-        bank_name: formData.bank_name,
-        branch: formData.branch,
-        account_no: formData.account_no,
+        // bank_name: formData.bank_name,
+        // branch: formData.branch,
+        // account_no: formData.account_no,
+
+        ...{
+          bank_details: bankData, 
+        },
 
         // Declaration
         declaration_name: formData.declaration_name,
@@ -874,7 +946,7 @@ const CardBloMe = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'token 508b6fa8bc5d7b1:bb4df2c976ee21c',
+          'Authorization': 'token 1a5cfcab01776e5:63628feef82aa59',
         },
         credentials: "omit",
         body: JSON.stringify(erpNextPayload3),
@@ -895,6 +967,7 @@ const CardBloMe = () => {
       const erpNextPayload4 = {
         // Reference to Page3
         from3: page3Name,
+        from1: page1Name,
 
         // Employment Details
         company: formData.company,
@@ -925,7 +998,7 @@ const CardBloMe = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'token 508b6fa8bc5d7b1:bb4df2c976ee21c',
+          'Authorization': 'token 1a5cfcab01776e5:63628feef82aa59',
         },
         credentials: "omit",
         body: JSON.stringify(erpNextPayload4),
@@ -940,8 +1013,7 @@ const CardBloMe = () => {
       const page4Name = result4.data.name;
       console.log("Step 4 completed. Page4 ID:", page4Name);
 
-      dispatch(fetchCardBloMePage1(result1.data.name))
-      dispatch(updateCardBloMePage1(data));
+      dispatch(fetchCardBloMePage1(page1Name));
       // All steps completed successfully
       console.log("All submissions completed successfully!");
       console.log("Document IDs created:", {
@@ -951,12 +1023,37 @@ const CardBloMe = () => {
         page4: page4Name
       });
 
+      const card_blome_payload = {
+        card_blo_me_number: page1Name,
+        card_blo_me_page_2: page2Name,
+        card_blo_me_page_3: page3Name,
+        card_blo_me_page_4: page4Name
+      }
+      console.log("Updating User with Card Blo Me Number:", card_blome_payload);
+      const update_user = await fetch(`/api/resource/User/${currentUser}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'token 1a5cfcab01776e5:63628feef82aa59',
+        },
+        credentials: "omit",
+        body: JSON.stringify(card_blome_payload),
+      });
+      if (update_user.ok) {
+        console.log("User updated with Card Blo Me Number:", result1.data.name);
+      } else {
+        const errorText = await update_user.text();
+        console.error(`Failed to update user: ${update_user.status} ${update_user.statusText} - ${errorText}`);
+      }
+
+      console.log("Step 1 completed. Page1 ID:", page1Name);
+
       setModalTitle('Application Submitted');
       setModalMessage(`Customer Created Successfully`);
       setModalType('success');
       setModalVisible(true);
       setIsFormSubmitted(true);
-      window.location.reload();
+
 
       // location.reload();
 
@@ -977,1736 +1074,737 @@ const CardBloMe = () => {
     }, 2000);
   }
 
-  // Custom Print Function
-  // const handlePrint = useCallback(() => {
-  //   const printWindow = window.open('', '_blank');
-  //   const currentDate = new Date().toLocaleDateString();
-
-  //   // const printContent = `
-  //   //   <!DOCTYPE html>
-  //   //   <html>
-  //   //     <head>
-  //   //       <title>Card Blo Me Registration - ${formData.first_name} ${formData.last_name}</title>
-  //   //       <style>
-  //   //         @media print {
-  //   //           @page {
-  //   //             margin: 0.5in;
-  //   //             size: A4;
-  //   //           }
-  //   //           body {
-  //   //             font-family: 'Arial', sans-serif;
-  //   //             font-size: 12px;
-  //   //             line-height: 1.4;
-  //   //             color: #000;
-  //   //             margin: 0;
-  //   //             padding: 0;
-  //   //           }
-  //   //         }
-
-  //   //         body {
-  //   //           font-family: 'Arial', sans-serif;
-  //   //           font-size: 12px;
-  //   //           line-height: 1.4;
-  //   //           color: #000;
-  //   //           margin: 0;
-  //   //           padding: 20px;
-  //   //           background: white;
-  //   //         }
-
-  //   //         .print-header {
-  //   //           text-align: center;
-  //   //           border-bottom: 3px solid #2563eb;
-  //   //           padding-bottom: 15px;
-  //   //           margin-bottom: 25px;
-  //   //         }
-
-  //   //         .print-header h1 {
-  //   //           color: #2563eb;
-  //   //           font-size: 24px;
-  //   //           font-weight: bold;
-  //   //           margin: 0 0 5px 0;
-  //   //         }
-
-  //   //         .print-header h2 {
-  //   //           color: #6b7280;
-  //   //           font-size: 16px;
-  //   //           font-weight: normal;
-  //   //           margin: 0;
-  //   //         }
-
-  //   //         .print-meta {
-  //   //           text-align: right;
-  //   //           margin-bottom: 25px;
-  //   //           font-size: 11px;
-  //   //           color: #6b7280;
-  //   //         }
-
-  //   //         .section {
-  //   //           margin-bottom: 25px;
-  //   //           page-break-inside: avoid;
-  //   //         }
-
-  //   //         .section-title {
-  //   //           background: #f3f4f6;
-  //   //           color: #1f2937;
-  //   //           font-size: 14px;
-  //   //           font-weight: bold;
-  //   //           padding: 8px 12px;
-  //   //           margin-bottom: 12px;
-  //   //           border-left: 4px solid #2563eb;
-  //   //         }
-
-  //   //         .field-group {
-  //   //           display: flex;
-  //   //           flex-wrap: wrap;
-  //   //           gap: 15px;
-  //   //           margin-bottom: 12px;
-  //   //         }
-
-  //   //         .field {
-  //   //           flex: 1;
-  //   //           min-width: 200px;
-  //   //         }
-
-  //   //         .field-label {
-  //   //           font-weight: 600;
-  //   //           color: #374151;
-  //   //           margin-bottom: 2px;
-  //   //           font-size: 11px;
-  //   //           text-transform: uppercase;
-  //   //           letter-spacing: 0.5px;
-  //   //         }
-
-  //   //         .field-value {
-  //   //           padding: 6px 8px;
-  //   //           border: 1px solid #d1d5db;
-  //   //           background: #f9fafb;
-  //   //           border-radius: 3px;
-  //   //           min-height: 16px;
-  //   //           font-size: 12px;
-  //   //         }
-
-  //   //         .field-value.empty {
-  //   //           color: #9ca3af;
-  //   //           font-style: italic;
-  //   //         }
-
-  //   //         .signature-section {
-  //   //           margin-top: 40px;
-  //   //           display: flex;
-  //   //           justify-content: space-between;
-  //   //           page-break-inside: avoid;
-  //   //         }
-
-  //   //         .signature-box {
-  //   //           width: 45%;
-  //   //           text-align: center;
-  //   //         }
-
-  //   //         .signature-line {
-  //   //           border-bottom: 1px solid #000;
-  //   //           margin-bottom: 5px;
-  //   //           height: 40px;
-  //   //         }
-
-  //   //         .footer {
-  //   //           margin-top: 30px;
-  //   //           text-align: center;
-  //   //           font-size: 10px;
-  //   //           color: #6b7280;
-  //   //           border-top: 1px solid #e5e7eb;
-  //   //           padding-top: 15px;
-  //   //         }
-
-  //   //         @media print {
-  //   //           .no-print {
-  //   //             display: none !important;
-  //   //           }
-  //   //         }
-  //   //       </style>
-  //   //     </head>
-  //   //     <body>
-  //   //       <div class="print-header">
-  //   //         <h1>Card Blo Me Registration Form</h1>
-  //   //         <h2>Application Summary</h2>
-  //   //       </div>
-
-  //   //       <div class="print-meta">
-  //   //         <strong>Application ID:</strong> ${formData.naming_series}${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}<br>
-  //   //         <strong>Status:</strong> ${formData.status}<br>
-  //   //         <strong>Generated on:</strong> ${currentDate}
-  //   //       </div>
-
-  //   //       <!-- Personal Information Section -->
-  //   //       <div class="section">
-  //   //         <div class="section-title">👤 Personal Information</div>
-  //   //         <div class="field-group">
-  //   //           <div class="field">
-  //   //             <div class="field-label">First Name</div>
-  //   //             <div class="field-value ${!formData.first_name ? 'empty' : ''}">${formData.first_name || 'Not provided'}</div>
-  //   //           </div>
-  //   //           <div class="field">
-  //   //             <div class="field-label">Middle Name</div>
-  //   //             <div class="field-value ${!formData.middle_name ? 'empty' : ''}">${formData.middle_name || 'Not provided'}</div>
-  //   //           </div>
-  //   //           <div class="field">
-  //   //             <div class="field-label">Last Name</div>
-  //   //             <div class="field-value ${!formData.last_name ? 'empty' : ''}">${formData.last_name || 'Not provided'}</div>
-  //   //           </div>
-  //   //         </div>
-  //   //         <div class="field-group">
-  //   //           <div class="field">
-  //   //             <div class="field-label">Title</div>
-  //   //             <div class="field-value ${!formData.title ? 'empty' : ''}">${formData.title || 'Not provided'}</div>
-  //   //           </div>
-  //   //           <div class="field">
-  //   //             <div class="field-label">Gender</div>
-  //   //             <div class="field-value ${!formData.gender ? 'empty' : ''}">${formData.gender || 'Not provided'}</div>
-  //   //           </div>
-  //   //           <div class="field">
-  //   //             <div class="field-label">Date of Birth</div>
-  //   //             <div class="field-value ${!formData.date_of_birth ? 'empty' : ''}">${formData.date_of_birth || 'Not provided'}</div>
-  //   //           </div>
-  //   //         </div>
-  //   //         <div class="field-group">
-  //   //           <div class="field">
-  //   //             <div class="field-label">Blood Group</div>
-  //   //             <div class="field-value ${!formData.blood_group ? 'empty' : ''}">${formData.blood_group || 'Not provided'}</div>
-  //   //           </div>
-  //   //           <div class="field">
-  //   //             <div class="field-label">Resident Status</div>
-  //   //             <div class="field-value ${!formData.resident_status ? 'empty' : ''}">${formData.resident_status || 'Not provided'}</div>
-  //   //           </div>
-  //   //         </div>
-  //   //       </div>
-
-  //   //       <div class="footer">
-  //   //         <p><strong>Card Blo Me Registration System</strong></p>
-  //   //         <p>This document was generated automatically on ${currentDate}</p>
-  //   //         <p>For inquiries, please contact our support team</p>
-  //   //       </div>
-  //   //     </body>
-  //   //   </html>
-  //   // `;
-  // const printContent = `
-  //   <!DOCTYPE html>
-  //   <html>
-  //     <head>
-  //       <title>Card Blo Me Registration - ${formData.first_name} ${formData.last_name}</title>
-  //       <style>
-  //         @media print {
-  //           @page {
-  //             margin: 0.5in;
-  //             size: A4;
-  //           }
-  //           body {
-  //             font-family: 'Arial', sans-serif;
-  //             font-size: 12px;
-  //             line-height: 1.4;
-  //             color: #000;
-  //             margin: 0;
-  //             padding: 0;
-  //           }
-  //         }
-
-  //         body {
-  //           font-family: 'Arial', sans-serif;
-  //           font-size: 12px;
-  //           line-height: 1.4;
-  //           color: #000;
-  //           margin: 0;
-  //           padding: 20px;
-  //           background: white;
-  //         }
-
-  //         .print-header {
-  //           text-align: center;
-  //           border-bottom: 3px solid #2563eb;
-  //           padding-bottom: 15px;
-  //           margin-bottom: 25px;
-  //         }
-
-  //         .print-header h1 {
-  //           color: #2563eb;
-  //           font-size: 24px;
-  //           font-weight: bold;
-  //           margin: 0 0 5px 0;
-  //         }
-
-  //         .print-header h2 {
-  //           color: #6b7280;
-  //           font-size: 16px;
-  //           font-weight: normal;
-  //           margin: 0;
-  //         }
-
-  //         .print-meta {
-  //           text-align: right;
-  //           margin-bottom: 25px;
-  //           font-size: 11px;
-  //           color: #6b7280;
-  //         }
-
-  //         .section {
-  //           margin-bottom: 25px;
-  //           page-break-inside: avoid;
-  //         }
-
-  //         .section-title {
-  //           background: #f3f4f6;
-  //           color: #1f2937;
-  //           font-size: 14px;
-  //           font-weight: bold;
-  //           padding: 8px 12px;
-  //           margin-bottom: 12px;
-  //           border-left: 4px solid #2563eb;
-  //         }
-
-  //         .field-group {
-  //           display: flex;
-  //           flex-wrap: wrap;
-  //           gap: 15px;
-  //           margin-bottom: 12px;
-  //         }
-
-  //         .field {
-  //           flex: 1;
-  //           min-width: 200px;
-  //         }
-
-  //         .field-label {
-  //           font-weight: 600;
-  //           color: #374151;
-  //           margin-bottom: 2px;
-  //           font-size: 11px;
-  //           text-transform: uppercase;
-  //           letter-spacing: 0.5px;
-  //         }
-
-  //         .field-value {
-  //           padding: 6px 8px;
-  //           border: 1px solid #d1d5db;
-  //           background: #f9fafb;
-  //           border-radius: 3px;
-  //           min-height: 16px;
-  //           font-size: 12px;
-  //         }
-
-  //         .field-value.empty {
-  //           color: #9ca3af;
-  //           font-style: italic;
-  //         }
-
-  //         .signature-section {
-  //           margin-top: 40px;
-  //           display: flex;
-  //           justify-content: space-between;
-  //           page-break-inside: avoid;
-  //         }
-
-  //         .signature-box {
-  //           width: 45%;
-  //           text-align: center;
-  //         }
-
-  //         .signature-line {
-  //           border-bottom: 1px solid #000;
-  //           margin-bottom: 5px;
-  //           height: 40px;
-  //         }
-
-  //         .footer {
-  //           margin-top: 30px;
-  //           text-align: center;
-  //           font-size: 10px;
-  //           color: #6b7280;
-  //           border-top: 1px solid #e5e7eb;
-  //           padding-top: 15px;
-  //         }
-
-  //         @media print {
-  //           .no-print {
-  //             display: none !important;
-  //           }
-  //         }
-  //       </style>
-  //     </head>
-  //     <body>
-  //       <div class="print-header">
-  //         <h1>Card Blo Me Registration Form</h1>
-  //         <h2>Application Summary</h2>
-  //       </div>
-
-  //       <div class="print-meta">
-  //         <strong>Application ID:</strong> ${formData.naming_series}${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}<br>
-  //         <strong>Status:</strong> ${formData.status}<br>
-  //         <strong>Generated on:</strong> ${currentDate}
-  //       </div>
-
-  //       <!-- Personal Information Section -->
-  //       <div class="section">
-  //         <div class="section-title">👤 Personal Information</div>
-  //         <div class="field-group">
-  //           <div class="field">
-  //             <div class="field-label">First Name</div>
-  //             <div class="field-value ${!formData.first_name ? 'empty' : ''}">${formData.first_name || 'Not provided'}</div>
-  //           </div>
-  //           <div class="field">
-  //             <div class="field-label">Middle Name</div>
-  //             <div class="field-value ${!formData.middle_name ? 'empty' : ''}">${formData.middle_name || 'Not provided'}</div>
-  //           </div>
-  //           <div class="field">
-  //             <div class="field-label">Last Name</div>
-  //             <div class="field-value ${!formData.last_name ? 'empty' : ''}">${formData.last_name || 'Not provided'}</div>
-  //           </div>
-  //         </div>
-  //         <div class="field-group">
-  //           <div class="field">
-  //             <div class="field-label">Title</div>
-  //             <div class="field-value ${!formData.title ? 'empty' : ''}">${formData.title || 'Not provided'}</div>
-  //           </div>
-  //           <div class="field">
-  //             <div class="field-label">Gender</div>
-  //             <div class="field-value ${!formData.gender ? 'empty' : ''}">${formData.gender || 'Not provided'}</div>
-  //           </div>
-  //           <div class="field">
-  //             <div class="field-label">Date of Birth</div>
-  //             <div class="field-value ${!formData.date_of_birth ? 'empty' : ''}">${formData.date_of_birth || 'Not provided'}</div>
-  //           </div>
-  //         </div>
-  //         <div class="field-group">
-  //           <div class="field">
-  //             <div class="field-label">Blood Group</div>
-  //             <div class="field-value ${!formData.blood_group ? 'empty' : ''}">${formData.blood_group || 'Not provided'}</div>
-  //           </div>
-  //           <div class="field">
-  //             <div class="field-label">Resident Status</div>
-  //             <div class="field-value ${!formData.resident_status ? 'empty' : ''}">${formData.resident_status || 'Not provided'}</div>
-  //           </div>
-  //         </div>
-  //       </div>
-
-  //       <!-- Address Information Section -->
-  //       <div class="section">
-  //         <div class="section-title">🏠 Address Information</div>
-  //         <div class="field-group">
-  //           <div class="field">
-  //             <div class="field-label">Village</div>
-  //             <div class="field-value ${!formData.village ? 'empty' : ''}">${formData.village || 'Not provided'}</div>
-  //           </div>
-  //           <div class="field">
-  //             <div class="field-label">Town</div>
-  //             <div class="field-value ${!formData.town ? 'empty' : ''}">${formData.town || 'Not provided'}</div>
-  //           </div>
-  //           <div class="field">
-  //             <div class="field-label">District</div>
-  //             <div class="field-value ${!formData.district ? 'empty' : ''}">${formData.district || 'Not provided'}</div>
-  //           </div>
-  //         </div>
-  //         <div class="field-group">
-  //           <div class="field">
-  //             <div class="field-label">Province</div>
-  //             <div class="field-value ${!formData.province ? 'empty' : ''}">${formData.province || 'Not provided'}</div>
-  //           </div>
-  //           <div class="field">
-  //             <div class="field-label">Country</div>
-  //             <div class="field-value ${!formData.country ? 'empty' : ''}">${formData.country || 'Not provided'}</div>
-  //           </div>
-  //           <div class="field">
-  //             <div class="field-label">PO Box</div>
-  //             <div class="field-value ${!formData.po_box ? 'empty' : ''}">${formData.po_box || 'Not provided'}</div>
-  //           </div>
-  //         </div>
-  //       </div>
-
-  //       <!-- Contact Information Section -->
-  //       <div class="section">
-  //         <div class="section-title">📞 Contact Information</div>
-  //         <div class="field-group">
-  //           <div class="field">
-  //             <div class="field-label">Personal Phone</div>
-  //             <div class="field-value ${!formData.phone_no ? 'empty' : ''}">${formData.personal_country_code} ${formData.phone_no || 'Not provided'}</div>
-  //           </div>
-  //           <div class="field">
-  //             <div class="field-label">Office Phone</div>
-  //             <div class="field-value ${!formData.mobile_no ? 'empty' : ''}">${formData.office_country_code} ${formData.mobile_no || 'Not provided'}</div>
-  //           </div>
-  //         </div>
-  //         <div class="field-group">
-  //           <div class="field">
-  //             <div class="field-label">Personal Email</div>
-  //             <div class="field-value ${!formData.personal_email_address ? 'empty' : ''}">${formData.personal_email_address || 'Not provided'}</div>
-  //           </div>
-  //           <div class="field">
-  //             <div class="field-label">Office Email</div>
-  //             <div class="field-value ${!formData.office_email ? 'empty' : ''}">${formData.office_email || 'Not provided'}</div>
-  //           </div>
-  //         </div>
-  //       </div>
-
-  //       <!-- Family Information Section -->
-  //       <div class="section">
-  //         <div class="section-title">👨‍👩‍👧‍👦 Family Information</div>
-  //         <div class="field-group">
-  //           <div class="field">
-  //             <div class="field-label">Mother's Full Name</div>
-  //             <div class="field-value ${!formData.mothers_full_name ? 'empty' : ''}">${formData.mothers_full_name || 'Not provided'}</div>
-  //           </div>
-  //           <div class="field">
-  //             <div class="field-label">Mother Alive</div>
-  //             <div class="field-value ${!formData.mother_alive ? 'empty' : ''}">${formData.mother_alive || 'Not provided'}</div>
-  //           </div>
-  //           <div class="field">
-  //             <div class="field-label">Mother's Contact</div>
-  //             <div class="field-value ${!formData.mothers_contact_no ? 'empty' : ''}">${formData.mothers_contact_no || 'Not provided'}</div>
-  //           </div>
-  //         </div>
-  //         <div class="field-group">
-  //           <div class="field">
-  //             <div class="field-label">Father's Full Name</div>
-  //             <div class="field-value ${!formData.fathers_full_name ? 'empty' : ''}">${formData.fathers_full_name || 'Not provided'}</div>
-  //           </div>
-  //           <div class="field">
-  //             <div class="field-label">Father Alive</div>
-  //             <div class="field-value ${!formData.father_alive ? 'empty' : ''}">${formData.father_alive || 'Not provided'}</div>
-  //           </div>
-  //           <div class="field">
-  //             <div class="field-label">Father's Contact</div>
-  //             <div class="field-value ${!formData.fathers_contact_no ? 'empty' : ''}">${formData.fathers_contact_no || 'Not provided'}</div>
-  //           </div>
-  //         </div>
-  //         <div class="field-group">
-  //           <div class="field">
-  //             <div class="field-label">Marital Status</div>
-  //             <div class="field-value ${!formData.marital_status ? 'empty' : ''}">${formData.marital_status || 'Not provided'}</div>
-  //           </div>
-  //         </div>
-  //       </div>
-
-  //       <!-- Health Information Section -->
-  //       <div class="section">
-  //         <div class="section-title">🏥 Health Information</div>
-  //         <div class="field-group">
-  //           <div class="field">
-  //             <div class="field-label">Age</div>
-  //             <div class="field-value ${!formData.age ? 'empty' : ''}">${formData.age || 'Not provided'}</div>
-  //           </div>
-  //           <div class="field">
-  //             <div class="field-label">Height</div>
-  //             <div class="field-value ${!formData.height ? 'empty' : ''}">${formData.height || 'Not provided'}</div>
-  //           </div>
-  //           <div class="field">
-  //             <div class="field-label">Weight</div>
-  //             <div class="field-value ${!formData.weight ? 'empty' : ''}">${formData.weight || 'Not provided'}</div>
-  //           </div>
-  //         </div>
-  //         <div class="field-group">
-  //           <div class="field">
-  //             <div class="field-label">BMI</div>
-  //             <div class="field-value ${!formData.bmi ? 'empty' : ''}">${formData.bmi || 'Not provided'}</div>
-  //           </div>
-  //           <div class="field">
-  //             <div class="field-label">Blood Pressure (Systolic)</div>
-  //             <div class="field-value ${!formData.bp_systolic ? 'empty' : ''}">${formData.bp_systolic || 'Not provided'}</div>
-  //           </div>
-  //           <div class="field">
-  //             <div class="field-label">Blood Pressure (Diastolic)</div>
-  //             <div class="field-value ${!formData.diastolic ? 'empty' : ''}">${formData.diastolic || 'Not provided'}</div>
-  //           </div>
-  //         </div>
-  //         <div class="field-group">
-  //           <div class="field">
-  //             <div class="field-label">Medical Conditions</div>
-  //             <div class="field-value ${!formData.prevailing_medical_conditions ? 'empty' : ''}">${formData.prevailing_medical_conditions || 'Not provided'}</div>
-  //           </div>
-  //         </div>
-  //         <div class="field-group">
-  //           <div class="field">
-  //             <div class="field-label">Previous Surgery</div>
-  //             <div class="field-value ${!formData.are_surgical_operation_done_in_the_past ? 'empty' : ''}">${formData.are_surgical_operation_done_in_the_past || 'Not provided'}</div>
-  //           </div>
-  //           <div class="field">
-  //             <div class="field-label">Taking Medications</div>
-  //             <div class="field-value ${!formData.are_you_taking_medications ? 'empty' : ''}">${formData.are_you_taking_medications || 'Not provided'}</div>
-  //           </div>
-  //         </div>
-  //       </div>
-
-  //       <!-- Emergency Contact Section -->
-  //       <div class="section">
-  //         <div class="section-title">🚨 Emergency Contact</div>
-  //         <div class="field-group">
-  //           <div class="field">
-  //             <div class="field-label">Emergency Contact Name</div>
-  //             <div class="field-value ${!formData.emergency_first_name ? 'empty' : ''}">${formData.emergency_first_name} ${formData.emergency_middle_name} ${formData.emergency_last_name || 'Not provided'}</div>
-  //           </div>
-  //           <div class="field">
-  //             <div class="field-label">Emergency Phone</div>
-  //             <div class="field-value ${!formData.emergency_phone_no ? 'empty' : ''}">${formData.emergency_personal_country_code} ${formData.emergency_phone_no || 'Not provided'}</div>
-  //           </div>
-  //         </div>
-  //         <div class="field-group">
-  //           <div class="field">
-  //             <div class="field-label">Emergency Email</div>
-  //             <div class="field-value ${!formData.emergency_personal_email ? 'empty' : ''}">${formData.emergency_personal_email || 'Not provided'}</div>
-  //           </div>
-  //         </div>
-  //       </div>
-
-  //       <!-- Employment Information Section -->
-  //       <div class="section">
-  //         <div class="section-title">💼 Employment Information</div>
-  //         <div class="field-group">
-  //           <div class="field">
-  //             <div class="field-label">Company</div>
-  //             <div class="field-value ${!formData.company ? 'empty' : ''}">${formData.company || 'Not provided'}</div>
-  //           </div>
-  //           <div class="field">
-  //             <div class="field-label">Department</div>
-  //             <div class="field-value ${!formData.department ? 'empty' : ''}">${formData.department || 'Not provided'}</div>
-  //           </div>
-  //         </div>
-  //         <div class="field-group">
-  //           <div class="field">
-  //             <div class="field-label">Supervisor Name</div>
-  //             <div class="field-value ${!formData.supervisor_name ? 'empty' : ''}">${formData.supervisor_name || 'Not provided'}</div>
-  //           </div>
-  //           <div class="field">
-  //             <div class="field-label">Supervisor Contact</div>
-  //             <div class="field-value ${!formData.supervisor_contact ? 'empty' : ''}">${formData.supervisor_contact || 'Not provided'}</div>
-  //           </div>
-  //         </div>
-  //         <div class="field-group">
-  //           <div class="field">
-  //             <div class="field-label">Nature of Work</div>
-  //             <div class="field-value ${!formData.nature_of_work ? 'empty' : ''}">${formData.nature_of_work || 'Not provided'}</div>
-  //           </div>
-  //         </div>
-  //       </div>
-
-  //       <!-- Lifestyle Information Section -->
-  //       <div class="section">
-  //         <div class="section-title">🎯 Lifestyle Information</div>
-  //         <div class="field-group">
-  //           <div class="field">
-  //             <div class="field-label">Alcohol Consumption</div>
-  //             <div class="field-value ${!formData.alcohol ? 'empty' : ''}">${formData.alcohol || 'Not provided'}</div>
-  //           </div>
-  //           <div class="field">
-  //             <div class="field-label">Frequency of Alcohol</div>
-  //             <div class="field-value ${!formData.frequency_of_taking_alcohol ? 'empty' : ''}">${formData.frequency_of_taking_alcohol || 'Not provided'}</div>
-  //           </div>
-  //         </div>
-  //         <div class="field-group">
-  //           <div class="field">
-  //             <div class="field-label">Smoking</div>
-  //             <div class="field-value ${!formData.smoking ? 'empty' : ''}">${formData.smoking || 'Not provided'}</div>
-  //           </div>
-  //           <div class="field">
-  //             <div class="field-label">Frequency of Smoking</div>
-  //             <div class="field-value ${!formData.frequency_of_smoking ? 'empty' : ''}">${formData.frequency_of_smoking || 'Not provided'}</div>
-  //           </div>
-  //         </div>
-  //         <div class="field-group">
-  //           <div class="field">
-  //             <div class="field-label">Betel Nut</div>
-  //             <div class="field-value ${!formData.beteinut ? 'empty' : ''}">${formData.beteinut || 'Not provided'}</div>
-  //           </div>
-  //           <div class="field">
-  //             <div class="field-label">Frequency of Betel Nut</div>
-  //             <div class="field-value ${!formData.frequency_of_beteinut ? 'empty' : ''}">${formData.frequency_of_beteinut || 'Not provided'}</div>
-  //           </div>
-  //         </div>
-  //       </div>
-
-  //       <!-- Bank Information Section -->
-  //       <div class="section">
-  //         <div class="section-title">🏦 Bank Information</div>
-  //         <div class="field-group">
-  //           <div class="field">
-  //             <div class="field-label">Bank Name</div>
-  //             <div class="field-value ${!formData.bank_name ? 'empty' : ''}">${formData.bank_name || 'Not provided'}</div>
-  //           </div>
-  //           <div class="field">
-  //             <div class="field-label">Branch</div>
-  //             <div class="field-value ${!formData.branch ? 'empty' : ''}">${formData.branch || 'Not provided'}</div>
-  //           </div>
-  //           <div class="field">
-  //             <div class="field-label">Account Number</div>
-  //             <div class="field-value ${!formData.account_no ? 'empty' : ''}">${formData.account_no || 'Not provided'}</div>
-  //           </div>
-  //         </div>
-  //       </div>
-
-  //       <!-- Signature Section -->
-  //       <div class="signature-section">
-  //         <div class="signature-box">
-  //           <div class="signature-line"></div>
-  //           <strong>Applicant Signature</strong><br>
-  //           <small>Date: _________________</small>
-  //         </div>
-  //         <div class="signature-box">
-  //           <div class="signature-line"></div>
-  //           <strong>Authorized Signature</strong><br>
-  //           <small>Date: _________________</small>
-  //         </div>
-  //       </div>
-
-  //       <div class="footer">
-  //         <p><strong>Card Blo Me Registration System</strong></p>
-  //         <p>This document was generated automatically on ${currentDate}</p>
-  //         <p>For inquiries, please contact our support team</p>
-  //       </div>
-
-
-  //     </body>
-  //   </html>
-  // `;
-
-  //   printWindow.document.write(printContent);
-  //   printWindow.document.close();
-
-  //   // Wait for content to load then print
-  //   printWindow.onload = function () {
-  //     printWindow.print();
-  //     printWindow.close();
-  //   };
-  // }, [formData]);
-
-
-  //   const handlePrint = useCallback(() => {
-  //   const printWindow = window.open('', '_blank');
-  //   const currentDate = new Date().toLocaleDateString();
-
-  //   const printContent = `
-  //     <!DOCTYPE html>
-  //     <html>
-  //       <head>
-  //         <title>Card Blo Me Registration - ${formData.first_name} ${formData.last_name}</title>
-  //         <style>
-  //           @media print {
-  //             @page {
-  //               margin: 0.5in;
-  //               size: A4;
-  //             }
-  //             body {
-  //               font-family: 'Arial', sans-serif;
-  //               font-size: 12px;
-  //               line-height: 1.4;
-  //               color: #000;
-  //               margin: 0;
-  //               padding: 0;
-  //             }
-  //             .no-print {
-  //               display: none !important;
-  //             }
-  //           }
-  //           body {
-  //             font-family: 'Arial', sans-serif;
-  //             font-size: 12px;
-  //             line-height: 1.4;
-  //             color: #000;
-  //             margin: 0;
-  //             padding: 20px;
-  //             background: white;
-  //           }
-  //           .print-header {
-  //             text-align: center;
-  //             border-bottom: 3px solid #2563eb;
-  //             padding-bottom: 15px;
-  //             margin-bottom: 25px;
-  //           }
-  //           .print-header h1 {
-  //             color: #2563eb;
-  //             font-size: 24px;
-  //             font-weight: bold;
-  //             margin: 0 0 5px 0;
-  //           }
-  //           .print-header h2 {
-  //             color: #6b7280;
-  //             font-size: 16px;
-  //             font-weight: normal;
-  //             margin: 0;
-  //           }
-  //           .print-meta {
-  //             text-align: right;
-  //             margin-bottom: 25px;
-  //             font-size: 11px;
-  //             color: #6b7280;
-  //           }
-  //           .section {
-  //             margin-bottom: 25px;
-  //             page-break-inside: avoid;
-  //           }
-  //           .section-title {
-  //             background: #f3f4f6;
-  //             color: #1f2937;
-  //             font-size: 14px;
-  //             font-weight: bold;
-  //             padding: 8px 12px;
-  //             margin-bottom: 12px;
-  //             border-left: 4px solid #2563eb;
-  //           }
-  //           .field-group {
-  //             display: flex;
-  //             flex-wrap: wrap;
-  //             gap: 15px;
-  //             margin-bottom: 12px;
-  //           }
-  //           .field {
-  //             flex: 1;
-  //             min-width: 200px;
-  //           }
-  //           .field-label {
-  //             font-weight: 600;
-  //             color: #374151;
-  //             margin-bottom: 2px;
-  //             font-size: 11px;
-  //             text-transform: uppercase;
-  //             letter-spacing: 0.5px;
-  //           }
-  //           .field-value {
-  //             padding: 6px 8px;
-  //             border: 1px solid #d1d5db;
-  //             background: #f9fafb;
-  //             border-radius: 3px;
-  //             min-height: 16px;
-  //             font-size: 12px;
-  //           }
-  //           .field-value.empty {
-  //             color: #9ca3af;
-  //             font-style: italic;
-  //           }
-  //           .signature-section {
-  //             margin-top: 40px;
-  //             display: flex;
-  //             justify-content: space-between;
-  //             page-break-inside: avoid;
-  //           }
-  //           .signature-box {
-  //             width: 45%;
-  //             text-align: center;
-  //           }
-  //           .signature-line {
-  //             border-bottom: 1px solid #000;
-  //             margin-bottom: 5px;
-  //             height: 40px;
-  //           }
-  //           .footer {
-  //             margin-top: 30px;
-  //             text-align: center;
-  //             font-size: 10px;
-  //             color: #6b7280;
-  //             border-top: 1px solid #e5e7eb;
-  //             padding-top: 15px;
-  //           }
-
-  //           /* Card Styles merged */
-  //           .card-container {
-  //             width: 532px;
-  //             height: 337px;
-  //             padding: 26px;
-  //             position: relative;
-  //             border: 1px solid #ccc;
-  //             border-radius: 10px;
-  //             background-image: url('/assets/erpnext/images/cardbg1.png');
-  //             background-size: 532px 337px;
-  //             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  //             overflow: hidden;
-  //             margin: 40px auto 0 auto;
-  //           }
-  //           .card-decoration {
-  //             position: absolute;
-  //             top: 0;
-  //             right: 0;
-  //             width: 200px;
-  //             height: 200px;
-  //             opacity: 0.7;
-  //             transform: rotate(180deg);
-  //           }
-  //           .logo-section {
-  //             position: absolute;
-  //             top: 26px;
-  //             left: 26px;
-  //             display: flex;
-  //             align-items: center;
-  //           }
-  //           .logo-circle {
-  //             width: 100px;
-  //             height: 100px;
-  //             background: linear-gradient(135deg, #ffb74d 0%, #ff9800 100%);
-  //             border-radius: 50%;
-  //             display: flex;
-  //             justify-content: center;
-  //             align-items: center;
-  //             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  //           }
-  //           .logo-text {
-  //             font-size: 36px;
-  //             font-weight: bold;
-  //             color: #000;
-  //           }
-  //           .card-details {
-  //             position: absolute;
-  //             top: 30px;
-  //             left: 140px;
-  //           }
-  //           .detail-row {
-  //             display: flex;
-  //             margin-bottom: 4px;
-  //           }
-  //           .detail-label {
-  //             width: 117px;
-  //             font-weight: bold;
-  //             font-size: 13px;
-  //           }
-  //           .detail-value {
-  //             font-size: 13px;
-  //           }
-  //           .profile-section {
-  //             position: absolute;
-  //             top: 140px;
-  //             left: 26px;
-  //             display: flex;
-  //             gap: 20px;
-  //           }
-  //           .profile-image {
-  //             width: 150px;
-  //             height: 150px;
-  //             border-radius: 10px;
-  //             object-fit: cover;
-  //             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-  //           }
-  //           .profile-details {
-  //             width: 225px;
-  //           }
-  //           .profile-label {
-  //             font-weight: bold;
-  //             font-size: 12px;
-  //           }
-  //           .profile-value {
-  //             margin-top: 0;
-  //             margin-bottom: 8px;
-  //             font-size: 12px;
-  //           }
-  //           .qr-code {
-  //             position: absolute;
-  //             bottom: 26px;
-  //             right: 26px;
-  //             width: 100px;
-  //             height: 100px;
-  //           }
-  //         </style>
-  //       </head>
-  //       <body>
-  //         <div class="print-header">
-  //           <h1>Card Blo Me Registration Form</h1>
-  //           <h2>Application Summary</h2>
-  //         </div>
-  //         <div class="print-meta">
-  //           <strong>Application ID:</strong> ${formData.naming_series}${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}<br>
-  //           <strong>Status:</strong> ${formData.status}<br>
-  //           <strong>Generated on:</strong> ${currentDate}
-  //         </div>
-
-  //         <!-- Personal Information Section -->
-  //         <!-- (Your existing field groups go here, omitted for brevity) -->
-
-  //         <div class="footer">
-  //           <p><strong>Card Blo Me Registration System</strong></p>
-  //           <p>This document was generated automatically on ${currentDate}</p>
-  //           <p>For inquiries, please contact our support team</p>
-  //         </div>
-
-  //         <!-- Insert card below footer -->
-  //         <div class="card-container">
-  //           <div class="card-decoration">
-  //             <img src="/assets/erpnext/images/design1.png" alt="Decorative Pattern" />
-  //           </div>
-  //           <div class="logo-section">
-  //             <img style="height: 68px" src="/assets/erpnext/images/mycard-logo.png" />
-  //           </div>
-  //           <div class="card-details">
-  //             <div class="detail-row">
-  //               <div class="detail-label">CARD NUMBER</div>
-  //               <div class="detail-value">${formData.naming_series}${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}</div>
-  //             </div>
-  //             <div class="detail-row">
-  //               <div class="detail-label">DATE OF ISSUE</div>
-  //               <div class="detail-value">${currentDate}</div>
-  //             </div>
-  //             <div class="detail-row">
-  //               <div class="detail-label">DATE OF EXPIRY</div>
-  //               <div class="detail-value">12/02/2030</div>
-  //             </div>
-  //           </div>
-  //           <div class="profile-section">
-  //             <img style="height: 160px; width: 124px; border-radius: 15px;" src="${formData.profile_image}" />
-  //             <div class="profile-details">
-  //               <p class="profile-label">NAME</p>
-  //               <p class="profile-value">${formData.title} ${formData.first_name} ${formData.last_name}</p>
-
-  //               <p class="profile-label">DATE OF BIRTH</p>
-  //               <p class="profile-value">${formData.date_of_birth}</p>
-
-  //               <p class="profile-label">ORIGIN</p>
-  //               <p class="profile-value">${formData.origin}</p>
-
-  //               <p class="profile-label">NATIONALITY</p>
-  //               <p class="profile-value">${formData.nationility}</p>
-  //             </div>
-  //           </div>
-  //           <div class="qr-code">
-  //             <img src="${formData.qr_code}" alt="QR Code" />
-  //           </div>
-  //         </div>
-  //       </body>
-  //     </html>
-  //   `;
-
-  //   printWindow.document.write(printContent);
-  //   printWindow.document.close();
-
-  //   printWindow.onload = function () {
-  //     printWindow.print();
-  //     printWindow.close();
-  //   };
-  // }, [formData]);
-
-
   const handlePrint = useCallback(() => {
     const printWindow = window.open('', '_blank');
     const currentDate = new Date().toLocaleDateString();
 
-    const printContent = `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <title>Card Blo Me Registration - ${formData.first_name} ${formData.last_name}</title>
-        <style>
-          @media print {
-            @page {
-              margin: 0.5in;
-              size: A4;
-            }
-            body {
-              font-family: 'Arial', sans-serif;
-              font-size: 12px;
-              line-height: 1.4;
-              color: #000;
-              margin: 0;
-              padding: 0;
-            }
-            .no-print {
-              display: none !important;
-            }
-          }
-          body {
-            font-family: 'Arial', sans-serif;
-            font-size: 12px;
-            line-height: 1.4;
-            color: #000;
-            margin: 0;
-            padding: 20px;
-            background: white;
-          }
-          .print-header {
-            text-align: center;
-            border-bottom: 3px solid #2563eb;
-            padding-bottom: 15px;
-            margin-bottom: 25px;
-          }
-          .print-header h1 {
-            color: #2563eb;
-            font-size: 24px;
-            font-weight: bold;
-            margin: 0 0 5px 0;
-          }
-          .print-header h2 {
-            color: #6b7280;
-            font-size: 16px;
-            font-weight: normal;
-            margin: 0;
-          }
-          .print-meta {
-            text-align: right;
-            margin-bottom: 25px;
-            font-size: 11px;
-            color: #6b7280;
-          }
-          .section {
-            margin-bottom: 25px;
-            page-break-inside: avoid;
-          }
-          .section-title {
-            background: #f3f4f6;
-            color: #1f2937;
-            font-size: 14px;
-            font-weight: bold;
-            padding: 8px 12px;
-            margin-bottom: 12px;
-            border-left: 4px solid #2563eb;
-          }
-          .field-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin-bottom: 12px;
-          }
-          .field {
-            flex: 1;
-            min-width: 200px;
-          }
-          .field-label {
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 2px;
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-          }
-          .field-value {
-            padding: 6px 8px;
-            border: 1px solid #d1d5db;
-            background: #f9fafb;
-            border-radius: 3px;
-            min-height: 16px;
-            font-size: 12px;
-          }
-          .field-value.empty {
-            color: #9ca3af;
-            font-style: italic;
-          }
-          .signature-section {
-            margin-top: 40px;
-            display: flex;
-            justify-content: space-between;
-            page-break-inside: avoid;
-          }
-          .signature-box {
-            width: 45%;
-            text-align: center;
-          }
-          .signature-line {
-            border-bottom: 1px solid #000;
-            margin-bottom: 5px;
-            height: 40px;
-          }
-          .footer {
-            margin-top: 30px;
-            text-align: center;
-            font-size: 10px;
-            color: #6b7280;
-            border-top: 1px solid #e5e7eb;
-            padding-top: 15px;
-          }
+    //     const printContent = `
+    //     <!DOCTYPE html>
+    //     <html>
+    //       <head>
+    //         <title>Card Blo Me Registration - ${formData.first_name} ${formData.last_name}</title>
+    //         <style>
+    //           @media print {
+    //             @page {
+    //               margin: 0.5in;
+    //               size: A4;
+    //             }
+    //             body {
+    //               font-family: 'Arial', sans-serif;
+    //               font-size: 12px;
+    //               line-height: 1.4;
+    //               color: #000;
+    //               margin: 0;
+    //               padding: 0;
+    //             }
+    //             .no-print {
+    //               display: none !important;
+    //             }
+    //           }
+    //           body {
+    //             font-family: 'Arial', sans-serif;
+    //             font-size: 12px;
+    //             line-height: 1.4;
+    //             color: #000;
+    //             margin: 0;
+    //             padding: 20px;
+    //             background: white;
+    //           }
+    //           .print-header {
+    //             text-align: center;
+    //             border-bottom: 3px solid #2563eb;
+    //             padding-bottom: 15px;
+    //             margin-bottom: 25px;
+    //           }
+    //           .print-header h1 {
+    //             color: #2563eb;
+    //             font-size: 24px;
+    //             font-weight: bold;
+    //             margin: 0 0 5px 0;
+    //           }
+    //           .print-header h2 {
+    //             color: #6b7280;
+    //             font-size: 16px;
+    //             font-weight: normal;
+    //             margin: 0;
+    //           }
+    //           .print-meta {
+    //             text-align: right;
+    //             margin-bottom: 25px;
+    //             font-size: 11px;
+    //             color: #6b7280;
+    //           }
+    //           .section {
+    //             margin-bottom: 25px;
+    //             page-break-inside: avoid;
+    //           }
+    //           .section-title {
+    //             background: #f3f4f6;
+    //             color: #1f2937;
+    //             font-size: 14px;
+    //             font-weight: bold;
+    //             padding: 8px 12px;
+    //             margin-bottom: 12px;
+    //             border-left: 4px solid #2563eb;
+    //           }
+    //           .field-group {
+    //             display: flex;
+    //             flex-wrap: wrap;
+    //             gap: 15px;
+    //             margin-bottom: 12px;
+    //           }
+    //           .field {
+    //             flex: 1;
+    //             min-width: 200px;
+    //           }
+    //           .field-label {
+    //             font-weight: 600;
+    //             color: #374151;
+    //             margin-bottom: 2px;
+    //             font-size: 11px;
+    //             text-transform: uppercase;
+    //             letter-spacing: 0.5px;
+    //           }
+    //           .field-value {
+    //             padding: 6px 8px;
+    //             border: 1px solid #d1d5db;
+    //             background: #f9fafb;
+    //             border-radius: 3px;
+    //             min-height: 16px;
+    //             font-size: 12px;
+    //           }
+    //           .field-value.empty {
+    //             color: #9ca3af;
+    //             font-style: italic;
+    //           }
+    //           .signature-section {
+    //             margin-top: 40px;
+    //             display: flex;
+    //             justify-content: space-between;
+    //             page-break-inside: avoid;
+    //           }
+    //           .signature-box {
+    //             width: 45%;
+    //             text-align: center;
+    //           }
+    //           .signature-line {
+    //             border-bottom: 1px solid #000;
+    //             margin-bottom: 5px;
+    //             height: 40px;
+    //           }
+    //           .footer {
+    //             margin-top: 30px;
+    //             text-align: center;
+    //             font-size: 10px;
+    //             color: #6b7280;
+    //             border-top: 1px solid #e5e7eb;
+    //             padding-top: 15px;
+    //           }
 
-          /* Card Styles: fixed overflow issue & improved layout */
-          .card-container {
-           -webkit-print-color-adjust: exact;
-  print-color-adjust: exact;
-            width: 532px;
-            height: 337px;
-            padding: 26px;
-            position: relative;
-            border: 1px solid #ccc;
-            border-radius: 10px;
-            background-image: url('/assets/erpnext/images/cardbg1.png');
-            background-size: 532px 337px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            overflow: hidden;
-            margin: 40px auto 0 auto;
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            
-          }
-          .card-decoration {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 200px;
-  height: 200px;
-  opacity: 0.7;
-  transform: rotate(180deg);
-  z-index: 2;
-  overflow: hidden;
-  box-sizing: border-box;
-}
+    //           /* Card Styles: fixed overflow issue & improved layout */
+    //           .card-container {
+    //            -webkit-print-color-adjust: exact;
+    //   print-color-adjust: exact;
+    //             width: 532px;
+    //             height: 337px;
+    //             padding: 26px;
+    //             position: relative;
+    //             border: 1px solid #ccc;
+    //             border-radius: 10px;
+    //             background-image: url('/assets/erpnext/images/cardbg1.png');
+    //             background-size: 532px 337px;
+    //             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    //             overflow: hidden;
+    //             margin: 40px auto 0 auto;
+    //             box-sizing: border-box;
+    //             display: flex;
+    //             flex-direction: column;
+    //             justify-content: flex-start;
 
-.card-decoration img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  display: block;
-}
+    //           }
+    //           .card-decoration {
+    //   position: absolute;
+    //   top: 0;
+    //   right: 0;
+    //   width: 200px;
+    //   height: 200px;
+    //   opacity: 0.7;
+    //   transform: rotate(180deg);
+    //   z-index: 2;
+    //   overflow: hidden;
+    //   box-sizing: border-box;
+    // }
 
-          .logo-section {
-            position: absolute;
-            top: 26px;
-            left: 26px;
-            display: flex;
-            align-items: center;
-            z-index: 2;
-          }
-          .card-details {
-            position: absolute;
-            top: 36px;
-            left: 140px;
-            right: 26px;
-            z-index: 2;
-            width: 350px;
-          }
-          .detail-row {
-            display: flex;
-            margin-bottom: 4px;
-          }
-          .detail-label {
-            width: 128px;
-            font-weight: bold;
-            font-size: 13px;
-            text-align: left;
-          }
-          .detail-value {
-            font-size: 13px;
-            text-align: left;
-            flex: 1;
-            word-break: break-word;
-          }
-          .profile-section {
-            position: absolute;
-            top: 120px;
-            left: 26px;
-            display: flex;
-            gap: 20px;
-            z-index: 2;
-            right: 150px;
-          }
-          .profile-image {
-            width: 124px;
-            height: 150px;
-            border-radius: 10px;
-            object-fit: cover;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-          }
-          .profile-details {
-            width: 160px;
-            overflow: hidden;
-            word-break: break-word;
-          }
-          .profile-label {
-            font-weight: bold;
-            font-size: 12px;
-            margin-bottom: 1px;
-          }
-          .profile-value {
-            margin-top: 0;
-            margin-bottom: 8px;
-            font-size: 12px;
-            word-break: break-word;
-          }
-          .qr-code {
-            position: absolute;
-            bottom: 26px;
-            right: 26px;
-            width: 100px;
-            height: 100px;
-            z-index: 2;
-            background: #fff;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-          }
-          .qr-code img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            display: block;
-          }
+    // .card-decoration img {
+    //   width: 100%;
+    //   height: 100%;
+    //   object-fit: contain;
+    //   display: block;
+    // }
+
+    //           .logo-section {
+    //             position: absolute;
+    //             top: 26px;
+    //             left: 26px;
+    //             display: flex;
+    //             align-items: center;
+    //             z-index: 2;
+    //           }
+    //           .card-details {
+    //             position: absolute;
+    //             top: 36px;
+    //             left: 140px;
+    //             right: 26px;
+    //             z-index: 2;
+    //             width: 350px;
+    //           }
+    //           .detail-row {
+    //             display: flex;
+    //             margin-bottom: 4px;
+    //           }
+    //           .detail-label {
+    //             width: 128px;
+    //             font-weight: bold;
+    //             font-size: 13px;
+    //             text-align: left;
+    //           }
+    //           .detail-value {
+    //             font-size: 13px;
+    //             text-align: left;
+    //             flex: 1;
+    //             word-break: break-word;
+    //           }
+    //           .profile-section {
+    //             position: absolute;
+    //             top: 120px;
+    //             left: 26px;
+    //             display: flex;
+    //             gap: 20px;
+    //             z-index: 2;
+    //             right: 150px;
+    //           }
+    //           .profile-image {
+    //             width: 124px;
+    //             height: 150px;
+    //             border-radius: 10px;
+    //             object-fit: cover;
+    //             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    //           }
+    //           .profile-details {
+    //             width: 160px;
+    //             overflow: hidden;
+    //             word-break: break-word;
+    //           }
+    //           .profile-label {
+    //             font-weight: bold;
+    //             font-size: 12px;
+    //             margin-bottom: 1px;
+    //           }
+    //           .profile-value {
+    //             margin-top: 0;
+    //             margin-bottom: 8px;
+    //             font-size: 12px;
+    //             word-break: break-word;
+    //           }
+    //           .qr-code {
+    //             position: absolute;
+    //             bottom: 26px;
+    //             right: 26px;
+    //             width: 100px;
+    //             height: 100px;
+    //             z-index: 2;
+    //             background: #fff;
+    //             border-radius: 8px;
+    //             display: flex;
+    //             align-items: center;
+    //             justify-content: center;
+    //             overflow: hidden;
+    //           }
+    //           .qr-code img {
+    //             width: 100%;
+    //             height: 100%;
+    //             object-fit: contain;
+    //             display: block;
+    //           }
 
 
-          .decorative-pattern img {
-      position: absolute;
-      top: 0;
-      right: 0;
-      height: 100%;
-      width: 430px;
-    }
-    
-    .declaration-text {
-    position: absolute;
-    top: 154px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 80%; /* Or set to 33rem if preferred, but 80% fits responsive layouts */
-    text-align: center;
-    font-style: italic;
-    font-size: 10px;
-    line-height: 1.4;
-}
+    //           .decorative-pattern img {
+    //       position: absolute;
+    //       top: 0;
+    //       right: 0;
+    //       height: 100%;
+    //       width: 430px;
+    //     }
 
-    
-    .signature-section {
-    background-color:"red";
-      position: absolute;
-      top: 316px;
-      left: 0;
-      right: 0;
-      text-align: center;
-    }
-    
-    .signature-line {
-      width: 300px;
-      border-top: 1px dotted #000;
-      height: 1px;
-      margin: 0 auto 5px auto;
-    }
-    
-    .signature-label {
-      font-weight: bold;
-      font-size: 14px;
-    }
-    
-    .contact-info-text {
-    width: 401px;
-    position: absolute;
-    top: 345px;
-    left: 95px;
-    right: 50px;
-    text-align: center;
-    font-size: 10px;
-    line-height: 1.4;
-}
-    
-    .contact-details {
-      position: absolute;
-      bottom: 20px;
-      left: 0;
-      right: 0;
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      font-size: 9px;
-    }
-    
-    .contact-item {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-    
-    .contact-icon {
-      width: 16px;
-      height: 16px;
-    }
-        </style>
-      </head>
-      <body>
-       
+    //     .declaration-text {
+    //     position: absolute;
+    //     top: 154px;
+    //     left: 50%;
+    //     transform: translateX(-50%);
+    //     width: 80%; /* Or set to 33rem if preferred, but 80% fits responsive layouts */
+    //     text-align: center;
+    //     font-style: italic;
+    //     font-size: 10px;
+    //     line-height: 1.4;
+    // }
 
-        <!-- Personal Information -->
-        <div class="section">
-          <div class="section-title">👤 Personal Information</div>
-          <div class="field-group">
-            <div class="field">
-              <div class="field-label">First Name</div>
-              <div class="field-value ${!formData.first_name ? 'empty' : ''}">${formData.first_name || 'Not provided'}</div>
-            </div>
-            <div class="field">
-              <div class="field-label">Middle Name</div>
-              <div class="field-value ${!formData.middle_name ? 'empty' : ''}">${formData.middle_name || 'Not provided'}</div>
-            </div>
-            <div class="field">
-              <div class="field-label">Last Name</div>
-              <div class="field-value ${!formData.last_name ? 'empty' : ''}">${formData.last_name || 'Not provided'}</div>
-            </div>
-          </div>
-          <div class="field-group">
-            <div class="field">
-              <div class="field-label">Title</div>
-              <div class="field-value ${!formData.title ? 'empty' : ''}">${formData.title || 'Not provided'}</div>
-            </div>
-            <div class="field">
-              <div class="field-label">Gender</div>
-              <div class="field-value ${!formData.gender ? 'empty' : ''}">${formData.gender || 'Not provided'}</div>
-            </div>
-            <div class="field">
-              <div class="field-label">Date of Birth</div>
-              <div class="field-value ${!formData.date_of_birth ? 'empty' : ''}">${formData.date_of_birth || 'Not provided'}</div>
-            </div>
-          </div>
-          <div class="field-group">
-            <div class="field">
-              <div class="field-label">Blood Group</div>
-              <div class="field-value ${!formData.blood_group ? 'empty' : ''}">${formData.blood_group || 'Not provided'}</div>
-            </div>
-            <div class="field">
-              <div class="field-label">Resident Status</div>
-              <div class="field-value ${!formData.resident_status ? 'empty' : ''}">${formData.resident_status || 'Not provided'}</div>
-            </div>
-          </div>
-        </div>
 
-        <!-- Address Information -->
-        <div class="section">
-          <div class="section-title">🏠 Address Information</div>
-          <div class="field-group">
-            <div class="field">
-              <div class="field-label">Village</div>
-              <div class="field-value ${!formData.village ? 'empty' : ''}">${formData.village || 'Not provided'}</div>
-            </div>
-            <div class="field">
-              <div class="field-label">Town</div>
-              <div class="field-value ${!formData.town ? 'empty' : ''}">${formData.town || 'Not provided'}</div>
-            </div>
-            <div class="field">
-              <div class="field-label">District</div>
-              <div class="field-value ${!formData.district ? 'empty' : ''}">${formData.district || 'Not provided'}</div>
-            </div>
-          </div>
-          <div class="field-group">
-            <div class="field">
-              <div class="field-label">Province</div>
-              <div class="field-value ${!formData.province ? 'empty' : ''}">${formData.province || 'Not provided'}</div>
-            </div>
-            <div class="field">
-              <div class="field-label">Country</div>
-              <div class="field-value ${!formData.country ? 'empty' : ''}">${formData.country || 'Not provided'}</div>
-            </div>
-            <div class="field">
-              <div class="field-label">PO Box</div>
-              <div class="field-value ${!formData.po_box ? 'empty' : ''}">${formData.po_box || 'Not provided'}</div>
-            </div>
-          </div>
-        </div>
+    //     .signature-section {
+    //     background-color:"red";
+    //       position: absolute;
+    //       top: 316px;
+    //       left: 0;
+    //       right: 0;
+    //       text-align: center;
+    //     }
 
-        <!-- Contact Information -->
-        <div class="section">
-          <div class="section-title">📞 Contact Information</div>
-          <div class="field-group">
-            <div class="field">
-              <div class="field-label">Personal Phone</div>
-              <div class="field-value ${!formData.phone_no ? 'empty' : ''}">${formData.personal_country_code} ${formData.phone_no || 'Not provided'}</div>
-            </div>
-            <div class="field">
-              <div class="field-label">Office Phone</div>
-              <div class="field-value ${!formData.mobile_no ? 'empty' : ''}">${formData.office_country_code} ${formData.mobile_no || 'Not provided'}</div>
-            </div>
-          </div>
-          <div class="field-group">
-            <div class="field">
-              <div class="field-label">Personal Email</div>
-              <div class="field-value ${!formData.personal_email_address ? 'empty' : ''}">${formData.personal_email_address || 'Not provided'}</div>
-            </div>
-            <div class="field">
-              <div class="field-label">Office Email</div>
-              <div class="field-value ${!formData.office_email ? 'empty' : ''}">${formData.office_email || 'Not provided'}</div>
-            </div>
-          </div>
-        </div>
+    //     .signature-line {
+    //       width: 300px;
+    //       border-top: 1px dotted #000;
+    //       height: 1px;
+    //       margin: 0 auto 5px auto;
+    //     }
 
-        <!-- Family Information -->
-        <div class="section">
-          <div class="section-title">👨‍👩‍👧‍👦 Family Information</div>
-          <div class="field-group">
-            <div class="field">
-              <div class="field-label">Mother's Full Name</div>
-              <div class="field-value ${!formData.mothers_full_name ? 'empty' : ''}">${formData.mothers_full_name || 'Not provided'}</div>
-            </div>
-            <div class="field">
-              <div class="field-label">Mother Alive</div>
-              <div class="field-value ${!formData.mother_alive ? 'empty' : ''}">${formData.mother_alive || 'Not provided'}</div>
-            </div>
-            <div class="field">
-              <div class="field-label">Mother's Contact</div>
-              <div class="field-value ${!formData.mothers_contact_no ? 'empty' : ''}">${formData.mothers_contact_no || 'Not provided'}</div>
-            </div>
-          </div>
-          <div class="field-group">
-            <div class="field">
-              <div class="field-label">Father's Full Name</div>
-              <div class="field-value ${!formData.fathers_full_name ? 'empty' : ''}">${formData.fathers_full_name || 'Not provided'}</div>
-            </div>
-            <div class="field">
-              <div class="field-label">Father Alive</div>
-              <div class="field-value ${!formData.father_alive ? 'empty' : ''}">${formData.father_alive || 'Not provided'}</div>
-            </div>
-            <div class="field">
-              <div class="field-label">Father's Contact</div>
-              <div class="field-value ${!formData.fathers_contact_no ? 'empty' : ''}">${formData.fathers_contact_no || 'Not provided'}</div>
-            </div>
-          </div>
-          <div class="field-group">
-            <div class="field">
-              <div class="field-label">Marital Status</div>
-              <div class="field-value ${!formData.marital_status ? 'empty' : ''}">${formData.marital_status || 'Not provided'}</div>
-            </div>
-          </div>
-        </div>
+    //     .signature-label {
+    //       font-weight: bold;
+    //       font-size: 14px;
+    //     }
 
-        <!-- Health Information -->
-        <div class="section">
-          <div class="section-title">🏥 Health Information</div>
-          <div class="field-group">
-            <div class="field">
-              <div class="field-label">Age</div>
-              <div class="field-value ${!formData.age ? 'empty' : ''}">${formData.age || 'Not provided'}</div>
-            </div>
-            <div class="field">
-              <div class="field-label">Height</div>
-              <div class="field-value ${!formData.height ? 'empty' : ''}">${formData.height || 'Not provided'}</div>
-            </div>
-            <div class="field">
-              <div class="field-label">Weight</div>
-              <div class="field-value ${!formData.weight ? 'empty' : ''}">${formData.weight || 'Not provided'}</div>
-            </div>
-          </div>
-          <div class="field-group">
-            <div class="field">
-              <div class="field-label">BMI</div>
-              <div class="field-value ${!formData.bmi ? 'empty' : ''}">${formData.bmi || 'Not provided'}</div>
-            </div>
-            <div class="field">
-              <div class="field-label">Blood Pressure (Systolic)</div>
-              <div class="field-value ${!formData.bp_systolic ? 'empty' : ''}">${formData.bp_systolic || 'Not provided'}</div>
-            </div>
-            <div class="field">
-              <div class="field-label">Blood Pressure (Diastolic)</div>
-              <div class="field-value ${!formData.diastolic ? 'empty' : ''}">${formData.diastolic || 'Not provided'}</div>
-            </div>
-          </div>
-          <div class="field-group">
-            <div class="field">
-              <div class="field-label">Medical Conditions</div>
-              <div class="field-value ${!formData.prevailing_medical_conditions ? 'empty' : ''}">${formData.prevailing_medical_conditions || 'Not provided'}</div>
-            </div>
-          </div>
-          <div class="field-group">
-            <div class="field">
-              <div class="field-label">Previous Surgery</div>
-              <div class="field-value ${!formData.are_surgical_operation_done_in_the_past ? 'empty' : ''}">${formData.are_surgical_operation_done_in_the_past || 'Not provided'}</div>
-            </div>
-            <div class="field">
-              <div class="field-label">Taking Medications</div>
-              <div class="field-value ${!formData.are_you_taking_medications ? 'empty' : ''}">${formData.are_you_taking_medications || 'Not provided'}</div>
-            </div>
-          </div>
-        </div>
+    //     .contact-info-text {
+    //     width: 401px;
+    //     position: absolute;
+    //     top: 345px;
+    //     left: 95px;
+    //     right: 50px;
+    //     text-align: center;
+    //     font-size: 10px;
+    //     line-height: 1.4;
+    // }
 
-        <!-- Emergency Contact -->
-        <div class="section">
-          <div class="section-title">🚨 Emergency Contact</div>
-          <div class="field-group">
-            <div class="field">
-              <div class="field-label">Emergency Contact Name</div>
-              <div class="field-value ${!formData.emergency_first_name ? 'empty' : ''}">${formData.emergency_first_name} ${formData.emergency_middle_name} ${formData.emergency_last_name || 'Not provided'}</div>
-            </div>
-            <div class="field">
-              <div class="field-label">Emergency Phone</div>
-              <div class="field-value ${!formData.emergency_phone_no ? 'empty' : ''}">${formData.emergency_personal_country_code} ${formData.emergency_phone_no || 'Not provided'}</div>
-            </div>
-          </div>
-          <div class="field-group">
-            <div class="field">
-              <div class="field-label">Emergency Email</div>
-              <div class="field-value ${!formData.emergency_personal_email ? 'empty' : ''}">${formData.emergency_personal_email || 'Not provided'}</div>
-            </div>
-          </div>
-        </div>
+    //     .contact-details {
+    //       position: absolute;
+    //       bottom: 20px;
+    //       left: 0;
+    //       right: 0;
+    //       display: flex;
+    //       justify-content: center;
+    //       gap: 20px;
+    //       font-size: 9px;
+    //     }
 
-        <!-- Employment Information -->
-        <div class="section">
-          <div class="section-title">💼 Employment Information</div>
-          <div class="field-group">
-            <div class="field">
-              <div class="field-label">Company</div>
-              <div class="field-value ${!formData.company ? 'empty' : ''}">${formData.company || 'Not provided'}</div>
-            </div>
-            <div class="field">
-              <div class="field-label">Department</div>
-              <div class="field-value ${!formData.department ? 'empty' : ''}">${formData.department || 'Not provided'}</div>
-            </div>
-          </div>
-          <div class="field-group">
-            <div class="field">
-              <div class="field-label">Supervisor Name</div>
-              <div class="field-value ${!formData.supervisor_name ? 'empty' : ''}">${formData.supervisor_name || 'Not provided'}</div>
-            </div>
-            <div class="field">
-              <div class="field-label">Supervisor Contact</div>
-              <div class="field-value ${!formData.supervisor_contact ? 'empty' : ''}">${formData.supervisor_contact || 'Not provided'}</div>
-            </div>
-          </div>
-          <div class="field-group">
-            <div class="field">
-              <div class="field-label">Nature of Work</div>
-              <div class="field-value ${!formData.nature_of_work ? 'empty' : ''}">${formData.nature_of_work || 'Not provided'}</div>
-            </div>
-          </div>
-        </div>
+    //     .contact-item {
+    //       display: flex;
+    //       align-items: center;
+    //       gap: 5px;
+    //     }
 
-        <!-- Lifestyle Information -->
-        <div class="section">
-          <div class="section-title">🎯 Lifestyle Information</div>
-          <div class="field-group">
-            <div class="field">
-              <div class="field-label">Alcohol Consumption</div>
-              <div class="field-value ${!formData.alcohol ? 'empty' : ''}">${formData.alcohol || 'Not provided'}</div>
-            </div>
-            <div class="field">
-              <div class="field-label">Frequency of Alcohol</div>
-              <div class="field-value ${!formData.frequency_of_taking_alcohol ? 'empty' : ''}">${formData.frequency_of_taking_alcohol || 'Not provided'}</div>
-            </div>
-          </div>
-          <div class="field-group">
-            <div class="field">
-              <div class="field-label">Smoking</div>
-              <div class="field-value ${!formData.smoking ? 'empty' : ''}">${formData.smoking || 'Not provided'}</div>
-            </div>
-            <div class="field">
-              <div class="field-label">Frequency of Smoking</div>
-              <div class="field-value ${!formData.frequency_of_smoking ? 'empty' : ''}">${formData.frequency_of_smoking || 'Not provided'}</div>
-            </div>
-          </div>
-          <div class="field-group">
-            <div class="field">
-              <div class="field-label">Betel Nut</div>
-              <div class="field-value ${!formData.beteinut ? 'empty' : ''}">${formData.beteinut || 'Not provided'}</div>
-            </div>
-            <div class="field">
-              <div class="field-label">Frequency of Betel Nut</div>
-              <div class="field-value ${!formData.frequency_of_beteinut ? 'empty' : ''}">${formData.frequency_of_beteinut || 'Not provided'}</div>
-            </div>
-          </div>
-        </div>
+    //     .contact-icon {
+    //       width: 16px;
+    //       height: 16px;
+    //     }
+    //         </style>
+    //       </head>
+    //       <body>
 
-        <!-- Bank Information -->
-        <div class="section">
-          <div class="section-title">🏦 Bank Information</div>
-          <div class="field-group">
-            <div class="field">
-              <div class="field-label">Bank Name</div>
-              <div class="field-value ${!formData.bank_name ? 'empty' : ''}">${formData.bank_name || 'Not provided'}</div>
-            </div>
-            <div class="field">
-              <div class="field-label">Branch</div>
-              <div class="field-value ${!formData.branch ? 'empty' : ''}">${formData.branch || 'Not provided'}</div>
-            </div>
-            <div class="field">
-              <div class="field-label">Account Number</div>
-              <div class="field-value ${!formData.account_no ? 'empty' : ''}">${formData.account_no || 'Not provided'}</div>
-            </div>
-          </div>
-        </div>
 
-        <!-- Signature Section -->
-        <div class="signature-section">
-          <div class="signature-box">
-            <div class="signature-line"></div>
-            <strong>Applicant Signature</strong><br>
-            <small>Date: _________________</small>
-          </div>
-          <div class="signature-box">
-            <div class="signature-line"></div>
-            <strong>Authorized Signature</strong><br>
-            <small>Date: _________________</small>
-          </div>
-        </div>
+    //         <!-- Personal Information -->
+    //         <div class="section">
+    //           <div class="section-title">👤 Personal Information</div>
+    //           <div class="field-group">
+    //             <div class="field">
+    //               <div class="field-label">First Name</div>
+    //               <div class="field-value ${!formData.first_name ? 'empty' : ''}">${formData.first_name || 'Not provided'}</div>
+    //             </div>
+    //             <div class="field">
+    //               <div class="field-label">Middle Name</div>
+    //               <div class="field-value ${!formData.middle_name ? 'empty' : ''}">${formData.middle_name || 'Not provided'}</div>
+    //             </div>
+    //             <div class="field">
+    //               <div class="field-label">Last Name</div>
+    //               <div class="field-value ${!formData.last_name ? 'empty' : ''}">${formData.last_name || 'Not provided'}</div>
+    //             </div>
+    //           </div>
+    //           <div class="field-group">
+    //             <div class="field">
+    //               <div class="field-label">Title</div>
+    //               <div class="field-value ${!formData.title ? 'empty' : ''}">${formData.title || 'Not provided'}</div>
+    //             </div>
+    //             <div class="field">
+    //               <div class="field-label">Gender</div>
+    //               <div class="field-value ${!formData.gender ? 'empty' : ''}">${formData.gender || 'Not provided'}</div>
+    //             </div>
+    //             <div class="field">
+    //               <div class="field-label">Date of Birth</div>
+    //               <div class="field-value ${!formData.date_of_birth ? 'empty' : ''}">${formData.date_of_birth || 'Not provided'}</div>
+    //             </div>
+    //           </div>
+    //           <div class="field-group">
+    //             <div class="field">
+    //               <div class="field-label">Blood Group</div>
+    //               <div class="field-value ${!formData.blood_group ? 'empty' : ''}">${formData.blood_group || 'Not provided'}</div>
+    //             </div>
+    //             <div class="field">
+    //               <div class="field-label">Resident Status</div>
+    //               <div class="field-value ${!formData.resident_status ? 'empty' : ''}">${formData.resident_status || 'Not provided'}</div>
+    //             </div>
+    //           </div>
+    //         </div>
 
-       
-        
-        <!-- Card front below footer -->
-        <div class="card-container">
-          <div class="card-decoration">
-            <img src="/assets/erpnext/images/design1.png" alt="Decorative Pattern" />
-          </div>
-          <div class="logo-section">
-            <img style="height: 68px" src="/assets/erpnext/images/mycard-logo.png" />
-          </div>
-          <div class="card-details">
-            <div class="detail-row">
-              <div class="detail-label">CARD NUMBER</div>
-              <div class="detail-value">${formData.naming_series}${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}</div>
-            </div>
-            <div class="detail-row">
-              <div class="detail-label">DATE OF ISSUE</div>
-              <div class="detail-value">${currentDate}</div>
-            </div>
-            <div class="detail-row">
-              <div class="detail-label">DATE OF EXPIRY</div>
-              <div class="detail-value">12/02/2030</div>
-            </div>
-          </div>
-          <div class="profile-section">
-            <img class="profile-image" src="${userImage}" />
-            <div class="profile-details">
-              <p class="profile-label">NAME</p>
-              <p class="profile-value">${formData.title} ${formData.first_name} ${formData.last_name}</p>
-              <p class="profile-label">DATE OF BIRTH</p>
-              <p class="profile-value">${formData.date_of_birth}</p>
-              <p class="profile-label">ORIGIN</p>
-              <p class="profile-value">${formData.origin || 'Not provided'}</p>
-              <p class="profile-label">NATIONALITY</p>
-              <p class="profile-value">${formData.nationility || 'Not provided'}</p>
-            </div>
-          </div>
-          <div class="qr-code">
-            <img src="${formData.qr_code}" alt="QR Code" />
-          </div>
-        </div>
+    //         <!-- Address Information -->
+    //         <div class="section">
+    //           <div class="section-title">🏠 Address Information</div>
+    //           <div class="field-group">
+    //             <div class="field">
+    //               <div class="field-label">Village</div>
+    //               <div class="field-value ${!formData.village ? 'empty' : ''}">${formData.village || 'Not provided'}</div>
+    //             </div>
+    //             <div class="field">
+    //               <div class="field-label">Town</div>
+    //               <div class="field-value ${!formData.town ? 'empty' : ''}">${formData.town || 'Not provided'}</div>
+    //             </div>
+    //             <div class="field">
+    //               <div class="field-label">District</div>
+    //               <div class="field-value ${!formData.district ? 'empty' : ''}">${formData.district || 'Not provided'}</div>
+    //             </div>
+    //           </div>
+    //           <div class="field-group">
+    //             <div class="field">
+    //               <div class="field-label">Province</div>
+    //               <div class="field-value ${!formData.province ? 'empty' : ''}">${formData.province || 'Not provided'}</div>
+    //             </div>
+    //             <div class="field">
+    //               <div class="field-label">Country</div>
+    //               <div class="field-value ${!formData.country ? 'empty' : ''}">${formData.country || 'Not provided'}</div>
+    //             </div>
+    //             <div class="field">
+    //               <div class="field-label">PO Box</div>
+    //               <div class="field-value ${!formData.po_box ? 'empty' : ''}">${formData.po_box || 'Not provided'}</div>
+    //             </div>
+    //           </div>
+    //         </div>
 
-        <!-- Card back below footer -->
-        <div class="card-container">
-    <!-- Logo Section -->
-    <div class="logo-section">
-      <img style="height: 68px" src="/assets/erpnext/images/mycard-logo.png" />
-    </div>
-    
-    <!-- Decorative Pattern -->
-    <div class="decorative-pattern">
-      <img style="transform: scaleX(-1);" src="/assets/erpnext/images/design2.png" alt="Decorative Pattern with Bird">
-    </div>
-    
-    <!-- Declaration Text -->
-    <div class="declaration-text">
-      I, the undersigned, hereby declare that all information and biometric data provided by me through this personal identification card are true, accurate, and correct to the best of my knowledge. I acknowledge that such information has been duly verified by LOT ICT Solutions Limited.
-      <br><br>
-      This card remains the exclusive property of LOT ICT Solutions Limited. In the event that this card is found please notify the below given contact details through email or message.
-    </div>
-    
-    <!-- Signature Section -->
-    <div class="signature-section">
-      <div class="signature-line"></div>
-      <div class="signature-label">Declared owners Signature</div>
-    </div>
-    
-    <!-- Contact Info Text -->
-    <div class="contact-info-text">
-      To access or verify the details given in this Personal Identification Card please contact Info@mycardpng.com to release the information after obtaining approval from the declared owner of the Card.
-    </div>
-    
-    <!-- Contact Details -->
-    <div class="contact-details">
-      <div class="contact-item">
-        <span>📞 +675 7190 2850</span>
-      </div>
-      <div class="contact-item">
-        <span>📞 +675 8223 4447</span>
-      </div>
-      <div class="contact-item">
-        <span>✉️ info@mycardpng.com</span>
-      </div>
-      <div class="contact-item">
-        <span>🌐 mycardpng.com</span>
-      </div>
-    </div>
-  </div>
-      </body>
-    </html>  
-  `;
+    //         <!-- Contact Information -->
+    //         <div class="section">
+    //           <div class="section-title">📞 Contact Information</div>
+    //           <div class="field-group">
+    //             <div class="field">
+    //               <div class="field-label">Personal Phone</div>
+    //               <div class="field-value ${!formData.phone_no ? 'empty' : ''}">${formData.personal_country_code} ${formData.phone_no || 'Not provided'}</div>
+    //             </div>
+    //             <div class="field">
+    //               <div class="field-label">Office Phone</div>
+    //               <div class="field-value ${!formData.mobile_no ? 'empty' : ''}">${formData.office_country_code} ${formData.mobile_no || 'Not provided'}</div>
+    //             </div>
+    //           </div>
+    //           <div class="field-group">
+    //             <div class="field">
+    //               <div class="field-label">Personal Email</div>
+    //               <div class="field-value ${!formData.personal_email_address ? 'empty' : ''}">${formData.personal_email_address || 'Not provided'}</div>
+    //             </div>
+    //             <div class="field">
+    //               <div class="field-label">Office Email</div>
+    //               <div class="field-value ${!formData.office_email ? 'empty' : ''}">${formData.office_email || 'Not provided'}</div>
+    //             </div>
+    //           </div>
+    //         </div>
+
+    //         <!-- Family Information -->
+    //         <div class="section">
+    //           <div class="section-title">👨‍👩‍👧‍👦 Family Information</div>
+    //           <div class="field-group">
+    //             <div class="field">
+    //               <div class="field-label">Mother's Full Name</div>
+    //               <div class="field-value ${!formData.mothers_full_name ? 'empty' : ''}">${formData.mothers_full_name || 'Not provided'}</div>
+    //             </div>
+    //             <div class="field">
+    //               <div class="field-label">Mother Alive</div>
+    //               <div class="field-value ${!formData.mother_alive ? 'empty' : ''}">${formData.mother_alive || 'Not provided'}</div>
+    //             </div>
+    //             <div class="field">
+    //               <div class="field-label">Mother's Contact</div>
+    //               <div class="field-value ${!formData.mothers_contact_no ? 'empty' : ''}">${formData.mothers_contact_no || 'Not provided'}</div>
+    //             </div>
+    //           </div>
+    //           <div class="field-group">
+    //             <div class="field">
+    //               <div class="field-label">Father's Full Name</div>
+    //               <div class="field-value ${!formData.fathers_full_name ? 'empty' : ''}">${formData.fathers_full_name || 'Not provided'}</div>
+    //             </div>
+    //             <div class="field">
+    //               <div class="field-label">Father Alive</div>
+    //               <div class="field-value ${!formData.father_alive ? 'empty' : ''}">${formData.father_alive || 'Not provided'}</div>
+    //             </div>
+    //             <div class="field">
+    //               <div class="field-label">Father's Contact</div>
+    //               <div class="field-value ${!formData.fathers_contact_no ? 'empty' : ''}">${formData.fathers_contact_no || 'Not provided'}</div>
+    //             </div>
+    //           </div>
+    //           <div class="field-group">
+    //             <div class="field">
+    //               <div class="field-label">Marital Status</div>
+    //               <div class="field-value ${!formData.marital_status ? 'empty' : ''}">${formData.marital_status || 'Not provided'}</div>
+    //             </div>
+    //           </div>
+    //         </div>
+
+    //         <!-- Health Information -->
+    //         <div class="section">
+    //           <div class="section-title">🏥 Health Information</div>
+    //           <div class="field-group">
+    //             <div class="field">
+    //               <div class="field-label">Age</div>
+    //               <div class="field-value ${!formData.age ? 'empty' : ''}">${formData.age || 'Not provided'}</div>
+    //             </div>
+    //             <div class="field">
+    //               <div class="field-label">Height</div>
+    //               <div class="field-value ${!formData.height ? 'empty' : ''}">${formData.height || 'Not provided'}</div>
+    //             </div>
+    //             <div class="field">
+    //               <div class="field-label">Weight</div>
+    //               <div class="field-value ${!formData.weight ? 'empty' : ''}">${formData.weight || 'Not provided'}</div>
+    //             </div>
+    //           </div>
+    //           <div class="field-group">
+    //             <div class="field">
+    //               <div class="field-label">BMI</div>
+    //               <div class="field-value ${!formData.bmi ? 'empty' : ''}">${formData.bmi || 'Not provided'}</div>
+    //             </div>
+    //             <div class="field">
+    //               <div class="field-label">Blood Pressure (Systolic)</div>
+    //               <div class="field-value ${!formData.bp_systolic ? 'empty' : ''}">${formData.bp_systolic || 'Not provided'}</div>
+    //             </div>
+    //             <div class="field">
+    //               <div class="field-label">Blood Pressure (Diastolic)</div>
+    //               <div class="field-value ${!formData.diastolic ? 'empty' : ''}">${formData.diastolic || 'Not provided'}</div>
+    //             </div>
+    //           </div>
+    //           <div class="field-group">
+    //             <div class="field">
+    //               <div class="field-label">Medical Conditions</div>
+    //               <div class="field-value ${!formData.prevailing_medical_conditions ? 'empty' : ''}">${formData.prevailing_medical_conditions || 'Not provided'}</div>
+    //             </div>
+    //           </div>
+    //           <div class="field-group">
+    //             <div class="field">
+    //               <div class="field-label">Previous Surgery</div>
+    //               <div class="field-value ${!formData.are_surgical_operation_done_in_the_past ? 'empty' : ''}">${formData.are_surgical_operation_done_in_the_past || 'Not provided'}</div>
+    //             </div>
+    //             <div class="field">
+    //               <div class="field-label">Taking Medications</div>
+    //               <div class="field-value ${!formData.are_you_taking_medications ? 'empty' : ''}">${formData.are_you_taking_medications || 'Not provided'}</div>
+    //             </div>
+    //           </div>
+    //         </div>
+
+    //         <!-- Emergency Contact -->
+    //         <div class="section">
+    //           <div class="section-title">🚨 Emergency Contact</div>
+    //           <div class="field-group">
+    //             <div class="field">
+    //               <div class="field-label">Emergency Contact Name</div>
+    //               <div class="field-value ${!formData.emergency_first_name ? 'empty' : ''}">${formData.emergency_first_name} ${formData.emergency_middle_name} ${formData.emergency_last_name || 'Not provided'}</div>
+    //             </div>
+    //             <div class="field">
+    //               <div class="field-label">Emergency Phone</div>
+    //               <div class="field-value ${!formData.emergency_phone_no ? 'empty' : ''}">${formData.emergency_personal_country_code} ${formData.emergency_phone_no || 'Not provided'}</div>
+    //             </div>
+    //           </div>
+    //           <div class="field-group">
+    //             <div class="field">
+    //               <div class="field-label">Emergency Email</div>
+    //               <div class="field-value ${!formData.emergency_personal_email ? 'empty' : ''}">${formData.emergency_personal_email || 'Not provided'}</div>
+    //             </div>
+    //           </div>
+    //         </div>
+
+    //         <!-- Employment Information -->
+    //         <div class="section">
+    //           <div class="section-title">💼 Employment Information</div>
+    //           <div class="field-group">
+    //             <div class="field">
+    //               <div class="field-label">Company</div>
+    //               <div class="field-value ${!formData.company ? 'empty' : ''}">${formData.company || 'Not provided'}</div>
+    //             </div>
+    //             <div class="field">
+    //               <div class="field-label">Department</div>
+    //               <div class="field-value ${!formData.department ? 'empty' : ''}">${formData.department || 'Not provided'}</div>
+    //             </div>
+    //           </div>
+    //           <div class="field-group">
+    //             <div class="field">
+    //               <div class="field-label">Supervisor Name</div>
+    //               <div class="field-value ${!formData.supervisor_name ? 'empty' : ''}">${formData.supervisor_name || 'Not provided'}</div>
+    //             </div>
+    //             <div class="field">
+    //               <div class="field-label">Supervisor Contact</div>
+    //               <div class="field-value ${!formData.supervisor_contact ? 'empty' : ''}">${formData.supervisor_contact || 'Not provided'}</div>
+    //             </div>
+    //           </div>
+    //           <div class="field-group">
+    //             <div class="field">
+    //               <div class="field-label">Nature of Work</div>
+    //               <div class="field-value ${!formData.nature_of_work ? 'empty' : ''}">${formData.nature_of_work || 'Not provided'}</div>
+    //             </div>
+    //           </div>
+    //         </div>
+
+    //         <!-- Lifestyle Information -->
+    //         <div class="section">
+    //           <div class="section-title">🎯 Lifestyle Information</div>
+    //           <div class="field-group">
+    //             <div class="field">
+    //               <div class="field-label">Alcohol Consumption</div>
+    //               <div class="field-value ${!formData.alcohol ? 'empty' : ''}">${formData.alcohol || 'Not provided'}</div>
+    //             </div>
+    //             <div class="field">
+    //               <div class="field-label">Frequency of Alcohol</div>
+    //               <div class="field-value ${!formData.frequency_of_taking_alcohol ? 'empty' : ''}">${formData.frequency_of_taking_alcohol || 'Not provided'}</div>
+    //             </div>
+    //           </div>
+    //           <div class="field-group">
+    //             <div class="field">
+    //               <div class="field-label">Smoking</div>
+    //               <div class="field-value ${!formData.smoking ? 'empty' : ''}">${formData.smoking || 'Not provided'}</div>
+    //             </div>
+    //             <div class="field">
+    //               <div class="field-label">Frequency of Smoking</div>
+    //               <div class="field-value ${!formData.frequency_of_smoking ? 'empty' : ''}">${formData.frequency_of_smoking || 'Not provided'}</div>
+    //             </div>
+    //           </div>
+    //           <div class="field-group">
+    //             <div class="field">
+    //               <div class="field-label">Betel Nut</div>
+    //               <div class="field-value ${!formData.beteinut ? 'empty' : ''}">${formData.beteinut || 'Not provided'}</div>
+    //             </div>
+    //             <div class="field">
+    //               <div class="field-label">Frequency of Betel Nut</div>
+    //               <div class="field-value ${!formData.frequency_of_beteinut ? 'empty' : ''}">${formData.frequency_of_beteinut || 'Not provided'}</div>
+    //             </div>
+    //           </div>
+    //         </div>
+
+    //         <!-- Bank Information -->
+    //         <div class="section">
+    //           <div class="section-title">🏦 Bank Information</div>
+    //           <div class="field-group">
+    //             <div class="field">
+    //               <div class="field-label">Bank Name</div>
+    //               <div class="field-value ${!formData.bank_name ? 'empty' : ''}">${formData.bank_name || 'Not provided'}</div>
+    //             </div>
+    //             <div class="field">
+    //               <div class="field-label">Branch</div>
+    //               <div class="field-value ${!formData.branch ? 'empty' : ''}">${formData.branch || 'Not provided'}</div>
+    //             </div>
+    //             <div class="field">
+    //               <div class="field-label">Account Number</div>
+    //               <div class="field-value ${!formData.account_no ? 'empty' : ''}">${formData.account_no || 'Not provided'}</div>
+    //             </div>
+    //           </div>
+    //         </div>
+
+    //         <!-- Signature Section -->
+    //         <div class="signature-section">
+    //           <div class="signature-box">
+    //             <div class="signature-line"></div>
+    //             <strong>Applicant Signature</strong><br>
+    //             <small>Date: _________________</small>
+    //           </div>
+    //           <div class="signature-box">
+    //             <div class="signature-line"></div>
+    //             <strong>Authorized Signature</strong><br>
+    //             <small>Date: _________________</small>
+    //           </div>
+    //         </div>
+
+
+
+    //         <!-- Card front below footer -->
+    //         <div class="card-container">
+    //           <div class="card-decoration">
+    //             <img src="/assets/erpnext/images/design1.png" alt="Decorative Pattern" />
+    //           </div>
+    //           <div class="logo-section">
+    //             <img style="height: 68px" src="/assets/erpnext/images/mycard-logo.png" />
+    //           </div>
+    //           <div class="card-details">
+    //             <div class="detail-row">
+    //               <div class="detail-label">CARD NUMBER</div>
+    //               <div class="detail-value">${data?.name}</div>
+    //             </div>
+    //             <div class="detail-row">
+    //               <div class="detail-label">DATE OF ISSUE</div>
+    //               <div class="detail-value">${currentDate}</div>
+    //             </div>
+    //           </div>
+    //           <div class="profile-section">
+    //             <img class="profile-image" src="${userImage}" />
+    //             <div class="profile-details">
+    //               <p class="profile-label">NAME</p>
+    //               <p class="profile-value">${formData.title} ${formData.first_name} ${formData.last_name}</p>
+    //               <p class="profile-label">DATE OF BIRTH</p>
+    //               <p class="profile-value">${formData.date_of_birth}</p>
+    //               <p class="profile-label">ORIGIN</p>
+    //               <p class="profile-value">${formData.country || 'Not provided'}</p>
+    //               <p class="profile-label">NATIONALITY</p>
+    //               <p class="profile-value">${formData.country || 'Not provided'}</p>
+    //             </div>
+    //           </div>
+    //           <div class="qr-code">
+    //             <img src="${formData.qr_code}" alt="QR Code" />
+    //           </div>
+    //         </div>
+
+    //         <!-- Card back below footer -->
+    //         <div class="card-container">
+    //     <!-- Logo Section -->
+    //     <div class="logo-section">
+    //       <img style="height: 68px" src="/assets/erpnext/images/mycard-logo.png" />
+    //     </div>
+
+    //     <!-- Decorative Pattern -->
+    //     <div class="decorative-pattern">
+    //       <img style="transform: scaleX(-1);" src="/assets/erpnext/images/design2.png" alt="Decorative Pattern with Bird">
+    //     </div>
+
+    //     <!-- Declaration Text -->
+    //     <div class="declaration-text">
+    //       I, the undersigned, hereby declare that all information and biometric data provided by me through this personal identification card are true, accurate, and correct to the best of my knowledge. I acknowledge that such information has been duly verified by LOT ICT Solutions Limited.
+    //       <br><br>
+    //       This card remains the exclusive property of LOT ICT Solutions Limited. In the event that this card is found please notify the below given contact details through email or message.
+    //     </div>
+
+    //     <!-- Signature Section -->
+    //     <div class="signature-section">
+    //       <div class="signature-line"></div>
+    //       <div class="signature-label">Declared owners Signature</div>
+    //     </div>
+
+    //     <!-- Contact Info Text -->
+    //     <div class="contact-info-text">
+    //       To access or verify the details given in this Personal Identification Card please contact Info@mycardpng.com to release the information after obtaining approval from the declared owner of the Card.
+    //     </div>
+
+    //     <!-- Contact Details -->
+    //     <div class="contact-details">
+    //       <div class="contact-item">
+    //         <span>📞 +675 7190 2850</span>
+    //       </div>
+    //       <div class="contact-item">
+    //         <span>📞 +675 8223 4447</span>
+    //       </div>
+    //       <div class="contact-item">
+    //         <span>✉️ info@mycardpng.com</span>
+    //       </div>
+    //       <div class="contact-item">
+    //         <span>🌐 mycardpng.com</span>
+    //       </div>
+    //     </div>
+    //   </div>
+    //       </body>
+    //     </html>  
+    //   `;
+
+    const printContent = GetPrintHtml(formData, [], [], [], currentDate,userImage);
 
     printWindow.document.write(printContent);
     printWindow.document.close();
@@ -2724,13 +1822,31 @@ const CardBloMe = () => {
     formData,
     handleChange,
     countries,
-    formErrors
-  }), [formData, handleChange, countries, formErrors]);
+    formErrors,
+    profilePicture,
+    profileUrl,
+    handleProfilePictureChange,
+    uploadProfilePicture,
+    spouseData,
+    setSpouseData,
+    childrenData,
+    setChildrenData,
+  }), [formData, handleChange, countries, formErrors, profilePicture, profileUrl, spouseData, childrenData]);
+
 
   const renderCurrentForm = useCallback(() => {
+    console.log("Rendering form:", currentForm);
     switch (currentForm) {
       case 1: return <Form1 {...formProps} />;
-      case 2: return <Form2 {...formProps} />;
+      // case 2: return <Form2 {...formProps, spouseData, setSpouseData, childrenData, setChildrenData} />;
+      // case 2: <Form2
+      //   {...formProps}
+      // // spouseData={spouseData}
+      // // setSpouseData={setSpouseData}
+      // // childrenData={childrenData}
+      // // setChildrenData={setChildrenData}
+      // />
+      case 2: return <Form2 {...formProps} spouseData={spouseData} setSpouseData={setSpouseData} childrenData={childrenData} setChildrenData={setChildrenData} />;
       case 3: return <Form3 {...formProps} />;
       case 4: return <Form4 {...formProps} />;
       case 5: return <Form5 {...formProps} />;
@@ -2792,7 +1908,11 @@ const CardBloMe = () => {
             .map(form => (
               <button
                 key={form.id}
-                onClick={() => setCurrentForm(form.id)}
+                onClick={() => {
+
+                  console.log("page id:",form.id);
+                  setCurrentForm(form.id);
+                }}
                 className={`form-nav-btn ${currentForm === form.id ? 'active' : 'inactive'}`}
               >
                 <span style={{ fontSize: '1.1rem' }}>{form.icon}</span>

@@ -526,6 +526,7 @@ const Navbar = () => {
   const handleLogout = () => {
     console.log('Logging out...');
     // Your logout logic here
+    localStorage.clear();
     logout()
     window.location.href = '/mycard/login';
   };

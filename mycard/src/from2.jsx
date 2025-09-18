@@ -371,10 +371,8 @@
 import React, { memo, useState } from 'react';
 
 // Form 2 Component (Health Declaration) - Memoized
-const Form2 = memo(({ formData, handleChange, countries }) => {
-  // Local state for child table data
-  const [spouseData, setSpouseData] = useState([]);
-  const [childrenData, setChildrenData] = useState([]);
+const Form2 = memo(({ formData, handleChange, countries, spouseData, setSpouseData, childrenData, setChildrenData }) => {
+  
 
   // Function to add spouse row
   const addSpouseRow = () => {
