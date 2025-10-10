@@ -1,4 +1,5 @@
 export function GetPrintHtml(formData, spouseData, childrenData, spouseBankData, currentDate, userImage) {
+  console.log("form data in get print html....", formData)
     // Build dynamic tables for spouse, children, spouse banks
     const spouseTableHtml = spouseData && spouseData.length > 0
         ? `<table>
@@ -44,23 +45,23 @@ export function GetPrintHtml(formData, spouseData, childrenData, spouseBankData,
       </table>`
         : '<div class="field-value empty">No children details provided.</div>';
 
-    const spouseBankTableHtml = spouseBankData && spouseBankData.length > 0
+    const spouseBankTableHtml = formData?.bank_details && formData?.bank_details.length > 0
         ? `<table>
         <thead>
           <tr>
-            <th>Account Name</th>
+            
             <th>Account Number</th>
             <th>Bank Name</th>
             <th>Branch Name</th>
           </tr>
         </thead>
         <tbody>
-          ${spouseBankData.map(bank => `
+          ${formData?.bank_details.map(bank => `
             <tr>
-              <td>${bank.bank_account || ''}</td>
-              <td>${bank.account_number || ''}</td>
+             
+              <td>${bank.account_no || ''}</td>
               <td>${bank.bank_name || ''}</td>
-              <td>${bank.branch_name || ''}</td>
+              <td>${bank.branch || ''}</td>
             </tr>
           `).join('')}
         </tbody>
@@ -969,71 +970,141 @@ export function GetPrintHtml(formData, spouseData, childrenData, spouseBankData,
     ${spouseBankTableHtml}
   </div>
 
-  <!-- Card front panel -->
-  <div class="card-container">
-    <div class="card-decoration">
-      <img src="/assets/erpnext/images/design1.png" alt="Decorative Pattern" />
-    </div>
-    <div class="logo-section">
-      <img style="height: 68px" src="/assets/erpnext/images/mycard-logo.png" />
-    </div>
-    <div class="card-details">
-      <div class="detail-row">
-        <div class="detail-label">CARD NUMBER</div>
-        <div class="detail-value">${formData.naming_series || 'CBM-'}${randomFourDigit}</div>
-      </div>
-      <div class="detail-row">
-        <div class="detail-label">DATE OF ISSUE</div>
-        <div class="detail-value">${currentDate || ''}</div>
-      </div>
-    </div>
-    <div class="profile-section">
-      <img class="profile-image" src="${userImage || ''}" alt="Profile Picture" />
-      <div class="profile-details">
-        <p class="profile-label">NAME</p>
-        <p class="profile-value">${formData.title || ''} ${formData.first_name || ''} ${formData.last_name || ''}</p>
-        <p class="profile-label">DATE OF BIRTH</p>
-        <p class="profile-value">${formData.date_of_birth || ''}</p>
-        <p class="profile-label">ORIGIN</p>
-        <p class="profile-value">${formData.country || 'Not provided'}</p>
-        <p class="profile-label">NATIONALITY</p>
-        <p class="profile-value">${formData.country || 'Not provided'}</p>
-      </div>
-    </div>
-    <div class="qr-code">
-      <img src="${formData.qr_code || ''}" alt="QR Code" />
-    </div>
-  </div>
-
-  <!-- Card back panel -->
-  <div class="card-container">
-    <div class="logo-section">
-      <img style="height: 68px" src="/assets/erpnext/images/mycard-logo.png" />
-    </div>
-    <div class="decorative-pattern">
-      <img style="transform: scaleX(-1);" src="/assets/erpnext/images/design2.png" alt="Decorative Pattern with Bird" />
-    </div>
-    <div class="declaration-text">
-      I, the undersigned, hereby declare that all information and biometric data provided by me through this personal identification card are true, accurate, and correct to the best of my knowledge. I acknowledge that such information has been duly verified by LOT ICT Solutions Limited.
-      <br /><br />
-      This card remains the exclusive property of LOT ICT Solutions Limited. In the event that this card is found please notify the below given contact details through email or message.
-    </div>
-    <div class="signature-section">
-      <div class="signature-line"></div>
-      <div class="signature-label">Declared owner's Signature</div>
-    </div>
-    <div class="contact-info-text">
-      To access or verify the details given in this Personal Identification Card please contact <a href="mailto:Info@mycardpng.com">Info@mycardpng.com</a> to release the information after obtaining approval from the declared owner of the Card.
-    </div>
-    <div class="contact-details">
-      <div class="contact-item">📞 +675 7190 2850</div>
-      <div class="contact-item">📞 +675 8223 4447</div>
-      <div class="contact-item">✉️ info@mycardpng.com</div>
-      <div class="contact-item">🌐 mycardpng.com</div>
-    </div>
-  </div>
+  
 
 </body>
 </html>
   `
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// export function GetPrintHtml(formData, spouseData, childrenData, spouseBankData, currentDate, userImage) {
+//   // Helper: Render any data object as fields
+//   function renderFields(data) {
+//     return Object.entries(data || {}).map(([key, value]) => `
+//       <div class="field">
+//         <div class="field-label">${key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</div>
+//         <div class="field-value">${value ?? 'Not provided'}</div>
+//       </div>
+//     `).join('');
+//   }
+
+//   // Table generators remain the same
+//   const spouseTableHtml = spouseData?.length
+//     ? `<table>
+//         <thead>
+//           <tr><th>Name</th><th>CRM No</th><th>Age</th></tr>
+//         </thead>
+//         <tbody>
+//           ${spouseData.map(spouse => `
+//             <tr>
+//               <td>${spouse.name1 || ''}</td>
+//               <td>${spouse.crm_no || ''}</td>
+//               <td>${spouse.age || ''}</td>
+//             </tr>
+//           `).join('')}
+//         </tbody>
+//       </table>`
+//     : '<div class="field-value empty">No spouse details provided.</div>';
+
+//   const childrenTableHtml = childrenData?.length
+//     ? `<table>
+//         <thead>
+//           <tr><th>Children Name</th><th>Parent Name</th><th>CRM No</th><th>Age</th></tr>
+//         </thead>
+//         <tbody>
+//           ${childrenData.map(child => `
+//             <tr>
+//               <td>${child.children_name || ''}</td>
+//               <td>${child.spouse_name || ''}</td>
+//               <td>${child.crm_no || ''}</td>
+//               <td>${child.age || ''}</td>
+//             </tr>
+//           `).join('')}
+//         </tbody>
+//       </table>`
+//     : '<div class="field-value empty">No children details provided.</div>';
+
+//   const spouseBankTableHtml = spouseBankData?.length
+//     ? `<table>
+//         <thead>
+//           <tr><th>Account Name</th><th>Account Number</th><th>Bank Name</th><th>Branch Name</th></tr>
+//         </thead>
+//         <tbody>
+//           ${spouseBankData.map(bank => `
+//             <tr>
+//               <td>${bank.bank_account || ''}</td>
+//               <td>${bank.account_number || ''}</td>
+//               <td>${bank.bank_name || ''}</td>
+//               <td>${bank.branch_name || ''}</td>
+//             </tr>
+//           `).join('')}
+//         </tbody>
+//       </table>`
+//     : '<div class="field-value empty">No spouse bank details provided.</div>';
+
+//   // (Optional) Organize fields by logical sections using prefixes or config, or just print all without grouping
+//   // Example: flat, all-fields dump
+//   const allFieldsHtml = `
+//     <div class="section">
+//       <div class="section-title">📝 All Form Details</div>
+//       <div class="field-group">
+//         ${renderFields(formData)}
+//       </div>
+//     </div>
+//   `;
+
+//   // Main template structure
+//   return `
+//   <!DOCTYPE html>
+//   <html lang="en">
+//   <head>
+//     <meta charset="UTF-8" />
+//     <title>Card Blo Me Registration - ${formData.first_name || ''} ${formData.last_name || ''}</title>
+//     <style>
+//       /* Paste your existing style block here: already in previous code */
+//       body {
+//         font-family: 'Arial', sans-serif;
+//         font-size: 12px;
+//         color: #000;
+//         margin: 0;
+//         padding: 20px;
+//         background: white;
+//       }
+//       .section { margin-bottom: 25px; }
+//       .section-title { background: #f3f4f6; color: #1f2937; font-size: 14px; font-weight: bold; padding: 8px 12px; margin-bottom: 12px; border-left: 4px solid #2563eb; }
+//       .field-group { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 12px; }
+//       .field { flex: 1; min-width: 200px; }
+//       .field-label { font-weight: 600; color: #374151; margin-bottom: 2px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+//       .field-value { padding: 6px 8px; border: 1px solid #d1d5db; background: #f9fafb; border-radius: 3px; min-height: 16px; font-size: 12px; word-break: break-word; }
+//       .field-value.empty { color: #9ca3af; font-style: italic; }
+//       table { width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 20px; }
+//       th, td { border: 1px solid #ddd; padding: 8px; font-size: 12px; word-break: break-word; }
+//       th { background-color: #f5f5f5; text-align: left; }
+//     </style>
+//   </head>
+//   <body>
+//     ${allFieldsHtml}
+//     <div class="section"><div class="section-title">👫 Spouse Details</div>${spouseTableHtml}</div>
+//     <div class="section"><div class="section-title">👶 Children Details</div>${childrenTableHtml}</div>
+//     <div class="section"><div class="section-title">🏦 Spouse Bank Details</div>${spouseBankTableHtml}</div>
+//   </body>
+//   </html>
+//   `;
+// }

@@ -1174,47 +1174,160 @@ const Form1 = memo(({
     <div>
 
       {/* --- Profile Picture Upload Section --- */}
-      <div className="section-card">
-        <div className="section-header">
-          <div className="section-icon">🖼️</div>
-          <h3 className="section-title">Profile Picture</h3>
-        </div>
-        <div className="fields-grid">
-          {profileUrl && (
-            <div className="mb-3">
-              <img
-                src={profileUrl}
-                alt="Profile preview"
-                className="profile-preview-img"
-                style={{ maxWidth: 80, borderRadius: 8 }}
-              />
-            </div>
-          )}
-          <label className="file-label">
-            <span className="bg-blue-50 text-blue-700 rounded-lg py-2 px-4 hover:bg-blue-100 cursor-pointer flex items-center transition">
-              Select Image
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleProfilePictureChange}
-              />
-            </span>
-          </label>
-          <button
-            type="button"
-            onClick={uploadProfilePicture}
-            disabled={!profilePicture}
-            className={`px-4 py-2 mt-2 rounded-lg flex items-center transition ${
-              profilePicture
-                ? "bg-blue-600 text-white hover:bg-blue-700"
-                : "bg-gray-200 text-gray-400 cursor-not-allowed"
-            }`}
-          >
-            Upload
-          </button>
-        </div>
+     {/* --- Profile Picture Upload Section --- */}
+<div className="section-card">
+  <div className="section-header">
+    <div className="section-icon">🖼️</div>
+    <h3 className="section-title">Profile Picture</h3>
+  </div>
+  {/* <div className="flex items-center gap-6 w-full mt-4">
+    {profileUrl && (
+      <div
+        className="h-20 w-20 flex items-center justify-center rounded-lg bg-white shadow"
+        style={{
+          animation: profileUrl
+            ? "profileFadeIn 0.6s ease-out forwards"
+            : "none"
+        }}
+      >
+        <img
+          src={profileUrl}
+          alt="Profile preview"
+          className="object-cover h-16 w-16 rounded-lg"
+        />
       </div>
+    )}
+
+    <label className="file-label flex-1">
+      <span className="bg-blue-50 text-blue-700 rounded-lg py-2 px-4 hover:bg-blue-100 cursor-pointer flex items-center transition">
+        Select Image
+        <input
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleProfilePictureChange}
+        />
+      </span>
+    </label>
+
+    <button
+      type="button"
+      onClick={uploadProfilePicture}
+      disabled={!profilePicture}
+      className={`group px-6 py-3 font-semibold rounded-lg shadow transition-all duration-300
+        flex items-center gap-2
+        focus:outline-none focus:ring-2 focus:ring-blue-400
+        ${
+          profilePicture
+            ? "bg-blue-600 text-white hover:bg-blue-700 active:scale-95"
+            : "bg-gray-100 text-gray-400 border border-gray-300 opacity-50 cursor-not-allowed"
+        }`}
+    >
+      Upload&nbsp;
+      <svg
+        width="20"
+        height="20"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        className="transition-transform group-hover:-translate-y-1 group-active:translate-y-0"
+      >
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M16 8l-4-4m0 0L8 8m4-4v12" />
+      </svg>
+    </button>
+  </div> */}
+
+  <div className="flex items-center gap-4 w-full mt-4">
+  {profileUrl && (
+    <div className="h-16 w-16 flex items-center justify-center rounded-lg bg-white shadow">
+      <img
+        src={profileUrl}
+        alt="Profile preview"
+        className="object-cover h-14 w-14 rounded-lg"
+      />
+    </div>
+  )}
+
+  <label className="file-label flex-1 max-w-xl">
+  <span
+    className="flex items-center gap-2 w-full px-6 py-3 bg-white border-2 border-dashed border-blue-300 text-blue-600 
+      font-medium rounded-lg shadow-sm cursor-pointer transition-all duration-200 ease-in-out
+      hover:bg-blue-50 hover:border-blue-500 hover:text-blue-700
+      focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 active:scale-95"
+    tabIndex={0}
+  >
+    <svg
+      className="w-5 h-5 text-blue-400"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+    >
+      <path strokeLinecap="round" strokeLinejoin="round"
+        d="M12 16v-4m0 0V8m0 4h4m-4 0H8m8 8H8a2 2 0 01-2-2V6a2 2 0 012-2h2l2-2 2 2h2a2 2 0 012 2v10a2 2 0 01-2 2z"
+      />
+    </svg>
+    <span>Select Image</span>
+    <input
+      type="file"
+      accept="image/*"
+      className="hidden"
+      onChange={handleProfilePictureChange}
+    />
+  </span>
+</label>
+
+
+  <button
+    type="button"
+    onClick={uploadProfilePicture}
+    disabled={!profilePicture}
+    className={`group px-6 py-3 font-semibold rounded-lg shadow transition-all duration-300
+      flex items-center gap-2
+      focus:outline-none focus:ring-2 focus:ring-blue-400
+      ${
+        profilePicture
+          ? "bg-blue-600 text-white hover:bg-blue-700 active:scale-95"
+          : "bg-gray-100 text-gray-400 border border-gray-300 opacity-50 cursor-not-allowed"
+      }`}
+  >
+    Upload&nbsp;
+    <svg
+      width="20"
+      height="20"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+      className="transition-transform group-hover:-translate-y-1 group-active:translate-y-0"
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M16 8l-4-4m0 0L8 8m4-4v12" />
+    </svg>
+  </button>
+</div>
+
+</div>
+
+
+<div className="section-card">
+  <div className="section-header">
+    <div className="section-icon">🖼️</div>
+    <h3 className="section-title">Custom CBM ID</h3>
+  </div>
+  
+
+  <div className="field-wrapper">
+            <label className="field-label">Custom Id</label>
+            <input
+              type="text"
+              className={inputClass('custom_id', 'field-input')}
+              value={formData.custom_id}
+              onChange={e => handleChange("custom_id", e.target.value)}
+            />
+          </div>
+
+</div>
+
 
       {/* --- Basic Information (Usually Hidden) --- */}
       <div className="section-card" style={{ display: 'none' }}>
@@ -1354,14 +1467,16 @@ const Form1 = memo(({
               onChange={e => handleChange("blood_group", e.target.value)}
             >
               <option value="">Select</option>
-              <option>A+</option>
-              <option>A-</option>
-              <option>B+</option>
-              <option>B-</option>
-              <option>AB+</option>
-              <option>AB-</option>
-              <option>O+</option>
-              <option>O-</option>
+              <option> </option>
+              <option>A Positive</option>
+              <option>A Negative</option>
+              <option>B Positive</option>
+              <option>B Negative</option>
+              <option>AB Positive</option>
+              <option>AB Negative</option>
+              <option>O Positive</option>
+              <option>O Negative</option>
+              
             </select>
             {errMsg('blood_group')}
           </div>

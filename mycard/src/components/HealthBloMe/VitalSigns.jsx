@@ -2,11 +2,11 @@
 import React from 'react';
 import { Heart, Activity, Thermometer, Wind } from 'lucide-react';
 
-const VitalSigns = () => {
+const VitalSigns = ( {vitalSignData} ) => {
   const vitalSigns = [
-    { label: "Blood Pressure", value: "120/80", unit: "mmHg", icon: Heart, color: "text-red-500", bgColor: "bg-red-50" },
-    { label: "Heart Rate", value: "72", unit: "bpm", icon: Activity, color: "text-pink-500", bgColor: "bg-pink-50" },
-    { label: "Temperature", value: "98.6", unit: "°F", icon: Thermometer, color: "text-orange-500", bgColor: "bg-orange-50" },
+    { label: "Blood Pressure", value: vitalSignData[0]?.bp?.split(" ")[0], unit: "mmHg", icon: Heart, color: "text-red-500", bgColor: "bg-red-50" },
+    { label: "Heart Rate", value: vitalSignData[0]?.pulse, unit: "bpm", icon: Activity, color: "text-pink-500", bgColor: "bg-pink-50" },
+    { label: "Temperature", value: vitalSignData[0]?.temperature, unit: "°F", icon: Thermometer, color: "text-orange-500", bgColor: "bg-orange-50" },
     { label: "Oxygen", value: "98", unit: "%", icon: Wind, color: "text-blue-500", bgColor: "bg-blue-50" }
   ];
 

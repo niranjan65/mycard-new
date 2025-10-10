@@ -466,9 +466,15 @@
 
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, Home, Bell, MessageSquare, LogOut, Edit3, Grid, Menu, X, ChevronDown } from 'lucide-react';
+import { Search, Home, Bell, MessageSquare, LogOut, Edit3, Grid, Menu, X, ChevronDown, CreditCard, User, Hospital, Building, TrendingUp, School, BookOpenText, GraduationCap } from 'lucide-react';
 import Cookies from 'js-cookie';
 import { useFrappeAuth } from 'frappe-react-sdk';
+import { useDispatch } from 'react-redux';
+import { resetCardBloMePage1 } from '@/store/slices/cardBloMePage1Slice';
+import { resetCardBloMePage2 } from '@/store/slices/cardBloMePage2Slice';
+import { resetCardBloMePage3 } from '@/store/slices/cardBloMePage3Slice';
+import { resetCardBloMePage4 } from '@/store/slices/cardBloMePage4Slice';
+import { Link, useNavigate } from 'react-router-dom';
 // import { Link, useNavigate } from 'react-router-dom';
 
 const Navbar = () => {
@@ -488,7 +494,8 @@ const Navbar = () => {
   const profileMenuRef = useRef(null);
   const appMenuRef = useRef(null);
   const mobileMenuRef = useRef(null);
-  // const navigate = useNavigate();
+  const dispatch = useDispatch()
+  const navigate = useNavigate();
 
   // Close menus when clicking outside
   useEffect(() => {
@@ -527,6 +534,10 @@ const Navbar = () => {
     console.log('Logging out...');
     // Your logout logic here
     localStorage.clear();
+    dispatch(resetCardBloMePage1())
+    dispatch(resetCardBloMePage2())
+    dispatch(resetCardBloMePage3())
+    dispatch(resetCardBloMePage4())
     logout()
     window.location.href = '/mycard/login';
   };
@@ -537,6 +548,18 @@ const Navbar = () => {
     }
     return 'U';
   };
+
+
+  const navItems = [
+      { icon: CreditCard, label: "Social Blo Me", path: "/social_media" },
+      { icon: User, label: "Kad Blo Me", path: "/" },
+      { icon: Hospital, label: "Health Blo Me", path: "/health" },
+      { icon: Building, label: "Bank Blo Me", path: "/bank" },
+      { icon: TrendingUp, label: "Trade Blo Me", path: "/trade" },
+      { icon: School, label: "Academy Blo Me", path: "/academy" },
+      { icon: BookOpenText, label: "Legal Blo Me", path: "/legal" },
+      { icon: GraduationCap, label: "Career Me", path: "/career" },
+    ];
 
   return (
     <>
@@ -719,7 +742,7 @@ const Navbar = () => {
 
                       {/* Menu Items */}
                       <div className="py-2">
-                        <a 
+                        {/* <a 
                           href="/mycard/edit-profile" 
                           className="flex items-center px-6 py-3 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors group"
                         >
@@ -730,7 +753,7 @@ const Navbar = () => {
                             <span className="font-medium">Edit Profile</span>
                             <p className="text-xs text-gray-500 dark:text-gray-400">Manage your account</p>
                           </div>
-                        </a>
+                        </a> */}
                         
                         <button 
                           onClick={handleLogout}
@@ -791,7 +814,7 @@ const Navbar = () => {
                 >
                   {value ? (
                     <div className="w-8 h-8 overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
-                      <img src={value} alt="Profile" className="w-full h-full object-cover" />
+                      <img src={userImage} alt="Profile" className="w-full h-full object-cover" />
                     </div>
                   ) : (
                     <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold">
@@ -831,17 +854,18 @@ const Navbar = () => {
           />
           <div 
             ref={mobileMenuRef}
-            className="fixed top-0 left-0 h-full w-80 max-w-[85vw] bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl shadow-2xl z-50 transition-transform animate-in slide-in-from-left duration-300"
+            className="fixed top-0 left-0 h-full w-80 max-w-[85vw] bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl shadow-2xl z-50 transition-transform animate-in slide-in-from-left animate-out slide-out-from-left duration-300"
           >
             {/* Mobile Menu Header */}
             <div className="flex items-center justify-between p-6 border-b border-gray-100 dark:border-gray-800">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+                {/* <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
                   <span className="text-white font-bold">M</span>
                 </div>
                 <span className="font-bold text-xl bg-gradient-to-r from-gray-800 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
                   MyCard
-                </span>
+                </span> */}
+                <img className='h-16' src='/assets/erpnext/images/mycard-logo.png' alt="MyCard Logo" />
               </div>
               <button onClick={toggleMobileMenu} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl">
                 <X size={24} className="text-gray-700 dark:text-gray-300" />
@@ -853,7 +877,7 @@ const Navbar = () => {
               <div className="flex items-center space-x-4">
                 {value ? (
                   <div className="w-16 h-16 overflow-hidden rounded-2xl border-3 border-white shadow-xl">
-                    <img src={value} alt="Profile" className="w-full h-full object-cover" />
+                    <img src={userImage} alt="Profile" className="w-full h-full object-cover" />
                   </div>
                 ) : (
                   <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-xl font-bold shadow-xl">
@@ -873,36 +897,30 @@ const Navbar = () => {
 
             {/* Navigation Menu */}
             <div className="py-4">
-              <a href="/mycard" className="flex items-center px-6 py-4 text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 border-r-2 border-blue-600">
-                <Home size={20} className="mr-4" />
-                <span className="font-medium">Home</span>
-              </a>
 
-              <button className="flex items-center w-full px-6 py-4 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">
-                <Bell size={20} className="mr-4" />
-                <span>Notifications</span>
-                <span className="ml-auto bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-medium">
-                  3
-                </span>
-              </button>
+              {
+                navItems.map((item, idx) => {
+                 const isActive = location.pathname === "/mycard" + item.path;
+                 console.log("active status", location.pathname, item.path)
 
-              <button onClick={() => window.location.href = '/chat'} className="flex items-center w-full px-6 py-4 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">
-                <MessageSquare size={20} className="mr-4" />
-                <span>Messages</span>
-              </button>
-
-              <button className="flex items-center w-full px-6 py-4 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">
-                <Grid size={20} className="mr-4" />
-                <span>Applications</span>
-              </button>
-
-              <a 
-                href="/mycard/edit-profile" 
-                className="flex items-center px-6 py-4 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
-              >
-                <Edit3 size={20} className="mr-4 text-blue-600 dark:text-blue-400" />
-                <span>Edit Profile</span>
-              </a>
+              return (
+                <Link
+                 key={idx}
+                 to={item.path}
+                 onClick={() => setShowMobileMenu(false)}
+                 className={`flex items-center w-full px-6 py-4 text-gray-700 dark:text-gray-300 hover:bg-gray-50 
+                  ${isActive
+                    ? 'text-blue-600 bg-blue-50 border-r-2 border-blue-600'
+                    : 'text-gray-600 hover:bg-gray-50'
+                  }
+                 `}>
+                  <item.icon size={20} className="mr-4" />
+                  <span>{item.label}</span>
+                </Link>
+              )
+                })
+              }
+              
               
               <button 
                 onClick={handleLogout}

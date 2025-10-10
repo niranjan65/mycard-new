@@ -4,6 +4,8 @@ import { Plus, Stethoscope, Calendar, Clock, MapPin, CheckCircle, XCircle, Downl
 import { handleDownloadPrescription } from './utils/downloadHelpers';
 
 const AppointmentsList = ({ allAppointments, appointmentLoading, setShowAppointmentModal }) => {
+
+  console.log("all appointment list.....", allAppointments)
   
   const handleDownload = (appointment) => {
     // Pass both appointment ID and invoice ID if available

@@ -13,13 +13,16 @@ const wishlistSlice = createSlice({
     addToWishlist: (state, action) => {
       const product = action.payload;
       // Avoid duplicates
-      if (!state.wishlistItems.find(item => item.id === product.id)) {
-        state.wishlistItems.push(product);
-      }
+      if (!state.wishlistItems.find(item => item.item_code === product.item_code)) {
+  state.wishlistItems.push(product);
+}
+
+
+
     },
     removeFromWishlist: (state, action) => {
       const id = action.payload;
-      state.wishlistItems = state.wishlistItems.filter(item => item.id !== id);
+      state.wishlistItems = state.wishlistItems.filter(item => item.item_code !== id);
     },
     toggleWishlistItem: (state, action) => {
       const product = action.payload;

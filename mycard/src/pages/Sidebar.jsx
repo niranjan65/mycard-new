@@ -914,28 +914,111 @@ const Sidebar = () => {
   // Patient checking states
   const [patientExists, setPatientExists] = useState(null);
   const [isCheckingPatient, setIsCheckingPatient] = useState(false);
+  const [patientData, setPatientData] = useState(null);
+  const [patientLoading, setPatientLoading] = useState(false)
 
   const current_user = Cookies.get('user_id');
+
+  
+  
+  const { data } = useFrappeGetDoc("User", current_user);
+  
+  
+  // Check if patient exists for current user
+  // const { data: patientData, isLoading: patientLoading } = useFrappeGetDocList("Patient", {
+  //   fields: ["name", "patient_name", "email"],
+  //   filters: [["name", "=", current_user]], // using your existing current_user
+  //   limit_page_length: 1,
+  // });
+
+  // const getPatientFromLbl = async(cbmid) => {
+  //     const myHeaders = new Headers();
+  //   myHeaders.append("Authorization", "token e0723ce34466cea:79dca2f515d4e2c");
+
+  //   const requestOptions = {
+  //     method: "GET",
+  //     headers: myHeaders,
+  //     redirect: "follow"
+  //   };
+
+  //   try {
+  //     const response = await fetch(`https://lblerp.anantdv.com/api/resource/Patient?filters=[["card_blo_me_number", "=", "${cbmid}"]]&fields=["*"]&limit=1`, requestOptions);
+  //     const result = await response.json();
+
+  //     console.log("Testing.....Patient", result)
+  //     if (result.length > 0) {
+  //       setPatientData(result)
+  //     }
+  //     // return result?.data?.[0]?.name;
+  //   } catch (error) {
+  //     console.error("Error fetching customer:", error);
+  //     return null;
+  //   }
+  // }
+
+  const getPatientFromLbl = async (cbmid) => {
+    console.log("----------------->", cbmid)
+  const myHeaders = new Headers();
+  myHeaders.append("Authorization", "token e0723ce34466cea:79dca2f515d4e2c");
+
+  const requestOptions = {
+    method: "GET",
+    headers: myHeaders,
+    redirect: "follow"
+  };
+
+  try {
+    const response = await fetch(
+      `https://lblerp.anantdv.com/api/resource/Patient?filters=[["card_blo_me_number", "=", "${cbmid}"]]&fields=["*"]&limit=1`,
+      requestOptions
+    );
+    const result = await response.json();
+
+    console.log("Testing.....Patient", result);
+
+    if (result?.data?.length > 0) {
+      setPatientData(result.data);
+    } else {
+      setPatientData([]);
+    }
+  } catch (error) {
+    console.error("Error fetching patient:", error);
+    setPatientData([]);
+  }
+};
+
+
+  useEffect(() => {
+    
+    if(data?.card_blo_me_number) {
+      getPatientFromLbl(data?.card_blo_me_number)
+    }
+  }, [data])
   
 
-  const { data } = useFrappeGetDoc("User", current_user);
 
-  // Check if patient exists for current user
-  const { data: patientData, isLoading: patientLoading } = useFrappeGetDocList("Patient", {
-    fields: ["name", "patient_name", "email"],
-    filters: [["email", "=", current_user]], // using your existing current_user
-    limit_page_length: 1,
-  });
-
+  
   // Update patient existence when data changes
+  // useEffect(() => {
+  //   console.log("Check user from sidebar......", patientData)
+  //   if (!patientLoading) {
+  //     setPatientExists(patientData && patientData.length > 0);
+  //     setIsCheckingPatient(false);
+  //   } else {
+  //     setIsCheckingPatient(true);
+  //   }
+  // }, [patientData, patientLoading, data]);
+
   useEffect(() => {
-    if (!patientLoading) {
-      setPatientExists(patientData && patientData.length > 0);
-      setIsCheckingPatient(false);
-    } else {
-      setIsCheckingPatient(true);
-    }
-  }, [patientData, patientLoading]);
+  if (!patientLoading) {
+    const exists = patientData && patientData.length > 0;
+    setPatientExists(exists);
+    setIsCheckingPatient(false);
+  } else {
+    setIsCheckingPatient(true);
+  }
+}, [patientData, patientLoading]);
+
 
   const getCustomerFromLbl = async (cbmid) => {
     const myHeaders = new Headers();
@@ -1111,6 +1194,8 @@ const Sidebar = () => {
         return;
       }
 
+      console.log("patient exists", patientExists)
+
       if (!patientExists) {
         // No patient found, go to patient not found page
         navigate("/patient-not-found");
@@ -1126,7 +1211,7 @@ const Sidebar = () => {
   };
 
   return (
-    <div className={`${isCollapsed ? 'w-16' : 'w-52'} bg-white rounded-lg shadow-lg transition-all duration-300 ease-in-out relative`}>
+    <div className={`${isCollapsed ? 'w-16' : 'w-52'} hidden lg:block bg-white rounded-lg shadow-lg transition-all duration-300 ease-in-out relative`}>
       {/* Collapse/Expand Button */}
       <button
         onClick={toggleSidebar}

@@ -124,7 +124,16 @@ const Form5 = memo(({ formData }) => (
 
         <h4 className="review-section-title">Bank Information</h4>
         <div className="review-grid">
-          <div className="review-item">
+
+          {
+            formData?.bank_details?.map((bank, index) => (
+              <div className="review-item" key={index}>
+                <span className="review-label">Bank {index + 1}:</span>
+                <span className="review-value">{`${bank.bank_name} - ${bank.branch} - ${bank.account_no}`}</span>
+              </div>
+            ))
+          }
+          {/* <div className="review-item">
             <span className="review-label">Bank Name:</span>
             <span className="review-value">{formData.bank_name || "Not provided"}</span>
           </div>
@@ -135,7 +144,7 @@ const Form5 = memo(({ formData }) => (
           <div className="review-item">
             <span className="review-label">Account Number:</span>
             <span className="review-value">{formData.account_no || "Not provided"}</span>
-          </div>
+          </div> */}
         </div>
 
         <div className="review-declaration">
@@ -147,7 +156,7 @@ const Form5 = memo(({ formData }) => (
                 <span>Digital Signature: <strong>{formData.signature || "Not signed"}</strong></span>
               </div> */}
               <div className="signature-line">
-                <span>Name: <strong>{formData.declaration_name || "Not provided"}</strong></span>
+                <span>Name: <strong>{formData.signature || "Not provided"}</strong></span>
               </div>
               <div className="signature-line">
                 <span>Date: <strong>{new Date().toLocaleDateString()}</strong></span>

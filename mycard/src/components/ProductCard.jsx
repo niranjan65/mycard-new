@@ -6,27 +6,88 @@ import { addToCart, addToWishlist, removeFromWishlist } from '../store/slices/ca
 import { COLORS } from '../constants/colors';
 
 const ProductCard = ({ product }) => {
+  console.log("Products......", product)
   const dispatch = useDispatch();
   const { wishlist } = useSelector(state => state.cart);
   
   const isInWishlist = wishlist.some(item => item.name === product.name);
 
-  const handleAddToCart = (e) => {
-    e.preventDefault();
-    dispatch(addToCart(product));
-  };
+  const handleAddToCart = async () => {
+    try {
+      // setAddingToCart(true);
+      console.log(`🛒 Adding 1 x ${product.item_name} to ERPNext cart...`);
 
-  const handleWishlistToggle = (e) => {
-    e.preventDefault();
-    if (isInWishlist) {
-      dispatch(removeFromWishlist(product.name));
-    } else {
-      dispatch(addToWishlist(product));
+      const response = await fetch("/api/method/webshop.webshop.shopping_cart.cart.update_cart", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          item_code: product.item_code,
+          qty: 1
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log("🛒 Add to Cart Response:", result);
+
+      if (result.message) {
+        alert(`✅ Added 1 x ${product.item_name} to cart!`);
+        // Update product state to show it's in cart
+        // setProduct(prev => ({ ...prev, in_cart: true }));
+      } else {
+        throw new Error("Failed to add to cart");
+      }
+
+    } catch (error) {
+      console.error('❌ Error adding to cart:', error);
+      alert('❌ Error adding item to cart. Please try again.');
+    } finally {
+      // setAddingToCart(false);
     }
   };
 
+  // const handleAddToCart = (e) => {
+  //   e.preventDefault();
+  //   dispatch(addToCart(product));
+  // };
+
+  const handleWishlistToggle = async(e) => {
+    e.preventDefault();
+    // if (isInWishlist) {
+    //   dispatch(removeFromWishlist(product.name));
+    // } else {
+    //   dispatch(addToWishlist(product));
+    // }
+
+     const response = await fetch("/api/method/webshop.webshop.doctype.wishlist.wishlist.add_to_wishlist", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          item_code: product.item_code || product.id
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log("💖 Add to Wishlist API Response:", result);
+  };
+
   return (
-    <Link to={`/product/${product.name}`} style={{
+    <div  style={{
       textDecoration: 'none',
       color: 'inherit'
     }}>
@@ -88,20 +149,7 @@ const ProductCard = ({ product }) => {
             )}
           </button>
 
-          {/* Discount Badge */}
-          <div style={{
-            position: 'absolute',
-            top: '12px',
-            left: '12px',
-            backgroundColor: COLORS.error,
-            color: COLORS.white,
-            padding: '4px 8px',
-            borderRadius: '6px',
-            fontSize: '12px',
-            fontWeight: 'bold'
-          }}>
-            20% OFF
-          </div>
+          
         </div>
         
         {/* Product Info */}
@@ -168,16 +216,7 @@ const ProductCard = ({ product }) => {
                 fontWeight: 'bold',
                 color: COLORS.textPrimary
               }}>₹{product.standard_rate}</span>
-              <span style={{
-                fontSize: '16px',
-                color: COLORS.gray,
-                textDecoration: 'line-through'
-              }}>₹{Math.round(product.standard_rate * 1.25)}</span>
-              <span style={{
-                fontSize: '12px',
-                color: COLORS.success,
-                fontWeight: 'bold'
-              }}>20% off</span>
+              
             </div>
           </div>
           
@@ -203,7 +242,7 @@ const ProductCard = ({ product }) => {
           </button>
         </div>
       </div>
-    </Link>
+    </div>
   );
 };
 
