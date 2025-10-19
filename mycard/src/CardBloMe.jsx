@@ -565,7 +565,8 @@ const CardBloMe = () => {
     smoking: 'No',
     frequency_of_smoking: 'Never',
     beteinut: 'No',
-    frequency_of_beteinut: 'Never'
+    frequency_of_beteinut: 'Never',
+    custom_id: ''
   });
 
   const handleChange = useCallback((field, value) => {
@@ -767,13 +768,13 @@ const CardBloMe = () => {
     switch (page) {
       case 1:
         return (
-          formData.title.trim() &&
-          formData.first_name.trim() &&
-          formData.last_name.trim() &&
-          formData.gender &&
-          formData.date_of_birth &&
-          formData.blood_group &&
-          formData.resident_status
+          formData?.title?.trim() &&
+          formData?.first_name?.trim() &&
+          formData?.last_name?.trim() &&
+          formData?.gender &&
+          formData?.date_of_birth &&
+          formData?.blood_group &&
+          formData?.resident_status
         );
       case 2:
         if (!formData.check_the_box_if_you_willing_to_provide_your_family_details) {
@@ -804,12 +805,16 @@ const CardBloMe = () => {
     }
   }, [formData]);
 
-  useEffect(() => {
-    const localData = localStorage.getItem(`cardBloMeForm${currentForm}`);
-    if (localData) {
-      setFormData(JSON.parse(localData));
-    }
-  }, [currentForm]);
+  // useEffect(() => {
+  //   const localData = localStorage.getItem(`cardBloMeForm${currentForm}`);
+    
+  //   if (localData) {
+  //     setFormData(JSON.parse(localData));
+    
+
+  //   console.warn(`cardBloMeForm${currentForm}`, formData)
+  //   }
+  // }, [currentForm]);
 
   const saveFormToLocalStorage = (formNumber, formValues) => {
     localStorage.setItem(`cardBloMeForm${formNumber}`, JSON.stringify(formValues));
@@ -880,7 +885,6 @@ const CardBloMe = () => {
       body: JSON.stringify(card_blome_payload),
     });
 
-    console.log("updated user.......", update_user)
 
       setModalTitle('Application Processed');
       setModalMessage(shouldUpdate ? 'Application Updated Successfully' : 'Application Created Successfully');
@@ -890,6 +894,7 @@ const CardBloMe = () => {
 
     } catch (error) {
       console.error("Submission error:", error);
+      alert(error)
       setCardBloMeError(`Error ${hasExistingDocuments ? 'updating' : 'creating'} application: ${error.message}`)
       throw new Error(`Error ${hasExistingDocuments ? 'updating' : 'creating'} application: ${error.message}`);
     } finally {
@@ -1141,6 +1146,9 @@ const CardBloMe = () => {
   };
 
   const createNewDocuments = async () => {
+    const localData = localStorage.getItem(`cardBloMeForm1`);
+    const parsedData = JSON.parse(localData)
+    console.warn("PArsed Data", parsedData)
     // Create Page1
     const erpNextPayload1 = {
       naming_series: formData.naming_series,
@@ -1169,7 +1177,7 @@ const CardBloMe = () => {
       district1: formData.district1,
       province1: formData.province1,
       country1: formData.country1,
-      custom_id: formData.custom_id,
+      custom_id: parsedData?.custom_id,
       po_box1: formData.po_box1,
       postal_code1: formData.postal_code1,
       personal_contact_no_country_code: parseInt(formData.personal_country_code.replace('+', ''), 10),

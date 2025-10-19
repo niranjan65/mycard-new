@@ -2,12 +2,14 @@
 import React from 'react';
 import { CalendarCheck, FileText, TestTube, Syringe } from 'lucide-react';
 
-const QuickStats = ({ totalAppointments, pastAppointments, totalLabReports, completedLabTests }) => {
+const QuickStats = ({ totalAppointments, pastAppointments, totalLabReports, completedLabTests, activeMainTab, setActiveMainTab }) => {
   const vaccinations = 3; // This can be made dynamic later
 
+  console.log("Active tab.......", activeMainTab)
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:bg-blue-50 hover:border-blue-200 transition-colors cursor-pointer group">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+      <div onClick={() => setActiveMainTab('Total Appointments')} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:bg-blue-50 hover:border-blue-200 transition-colors cursor-pointer group">
         <div className="flex items-center justify-between mb-4">
           <CalendarCheck className="w-8 h-8 text-blue-500 group-hover:text-blue-600 transition-colors" />
           <span className="text-2xl font-bold text-gray-800 group-hover:text-blue-700 transition-colors">
@@ -17,7 +19,7 @@ const QuickStats = ({ totalAppointments, pastAppointments, totalLabReports, comp
         <p className="text-sm text-gray-600 group-hover:text-blue-600 transition-colors">Total Appointments</p>
       </div>
 
-      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:bg-blue-50 hover:border-blue-200 transition-colors cursor-pointer group">
+      <div onClick={() => setActiveMainTab('Prescriptions')} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:bg-blue-50 hover:border-blue-200 transition-colors cursor-pointer group">
         <div className="flex items-center justify-between mb-4">
           <FileText className="w-8 h-8 text-green-500 group-hover:text-blue-500 transition-colors" />
           <span className="text-2xl font-bold text-gray-800 group-hover:text-blue-700 transition-colors">
@@ -27,7 +29,7 @@ const QuickStats = ({ totalAppointments, pastAppointments, totalLabReports, comp
         <p className="text-sm text-gray-600 group-hover:text-blue-600 transition-colors">Prescriptions</p>
       </div>
 
-      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:bg-blue-50 hover:border-blue-200 transition-colors cursor-pointer group">
+      <div onClick={() => setActiveMainTab('Lab Reports')} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:bg-blue-50 hover:border-blue-200 transition-colors cursor-pointer group">
         <div className="flex items-center justify-between mb-4">
           <TestTube className="w-8 h-8 text-purple-500 group-hover:text-blue-500 transition-colors" />
           <span className="text-2xl font-bold text-gray-800 group-hover:text-blue-700 transition-colors">
@@ -37,7 +39,7 @@ const QuickStats = ({ totalAppointments, pastAppointments, totalLabReports, comp
         <p className="text-sm text-gray-600 group-hover:text-blue-600 transition-colors">Lab Reports</p>
       </div>
 
-      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:bg-blue-50 hover:border-blue-200 transition-colors cursor-pointer group">
+      <div onClick={() => setActiveMainTab('Vaccinations')} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:bg-blue-50 hover:border-blue-200 transition-colors cursor-pointer group">
         <div className="flex items-center justify-between mb-4">
           <Syringe className="w-8 h-8 text-orange-500 group-hover:text-blue-500 transition-colors" />
           <span className="text-2xl font-bold text-gray-800 group-hover:text-blue-700 transition-colors">
@@ -45,6 +47,14 @@ const QuickStats = ({ totalAppointments, pastAppointments, totalLabReports, comp
           </span>
         </div>
         <p className="text-sm text-gray-600 group-hover:text-blue-600 transition-colors">Vaccinations</p>
+      </div>
+
+      <div onClick={() => setActiveMainTab('Get Medicine')} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:bg-blue-50 hover:border-blue-200 transition-colors cursor-pointer group">
+        <div className="flex items-center justify-between mb-4">
+          <Syringe className="w-8 h-8 text-orange-500 group-hover:text-blue-500 transition-colors" />
+          
+        </div>
+        <p className="text-sm text-gray-600 group-hover:text-blue-600 transition-colors">Get Medicine</p>
       </div>
     </div>
   );

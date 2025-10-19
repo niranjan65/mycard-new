@@ -11,7 +11,7 @@ const Form4 = memo(({ formData, handleChange }) => (
       </div>
       <div className="fields-grid">
         <div className="field-wrapper">
-          <label className="field-label required">Company</label>
+          <label className="field-label ">Company</label>
           <input
             type="text"
             className="field-input"
@@ -21,7 +21,7 @@ const Form4 = memo(({ formData, handleChange }) => (
         </div>
 
         <div className="field-wrapper">
-          <label className="field-label required">Department</label>
+          <label className="field-label ">Department</label>
           <input
             type="text"
             className="field-input"
@@ -62,7 +62,6 @@ const Form4 = memo(({ formData, handleChange }) => (
             <option>Website</option> */}
              <option>Casual</option>
             <option>Permanent
-              permanent
             </option>
           </select>
         </div>

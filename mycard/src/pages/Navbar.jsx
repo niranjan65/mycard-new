@@ -623,7 +623,7 @@ const Navbar = () => {
 
                   {/* Messages */}
                   <button 
-                    onClick={() => window.location.href = '/chat'} 
+                    onClick={() => navigate('/chat')} 
                     className="group relative p-3 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-xl transition-all duration-200"
                   >
                     <MessageSquare size={20} className="text-gray-600 dark:text-gray-400 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors" />

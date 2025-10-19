@@ -1459,7 +1459,7 @@ const Form1 = memo(({
             />
             {errMsg('date_of_birth')}
           </div>
-          <div className="field-wrapper">
+          {/* <div className="field-wrapper">
             <label className="field-label required">Blood Group</label>
             <select
               className={selectClass('blood_group')}
@@ -1479,7 +1479,28 @@ const Form1 = memo(({
               
             </select>
             {errMsg('blood_group')}
+          </div> */}
+
+          <div className="field-wrapper">
+            <label className="field-label required">Blood Group</label>
+            <select
+              className={selectClass('blood_group')}
+              value={formData.blood_group}
+              onChange={e => handleChange("blood_group", e.target.value)}
+            >
+              <option value="" disabled>Select</option>
+              <option value="A Positive">A Positive</option>
+              <option value="A Negative">A Negative</option>
+              <option value="B Positive">B Positive</option>
+              <option value="B Negative">B Negative</option>
+              <option value="AB Positive">AB Positive</option>
+              <option value="AB Negative">AB Negative</option>
+              <option value="O Positive">O Positive</option>
+              <option value="O Negative">O Negative</option>
+            </select>
+            {errMsg('blood_group')}
           </div>
+
           <div className="field-wrapper">
             <label className="field-label required">Resident Status</label>
             <select

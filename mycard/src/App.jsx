@@ -33,6 +33,7 @@ import Header from './components/Header'
 import { COLORS } from './constants/colors'
 import ComingSoon from './ComingSoon'
 import ComingSoonPage from './pages/ComingSoonPage'
+import PharmacyFinder from './pages/PharmacyFinder'
 
 // const Layout = () => {
 //   const currentUser = Cookies.get('user_id');
@@ -227,13 +228,22 @@ const currentUser = Cookies.get('user_id');
           {/* <Header /> */}
           {/* <main style={{ minHeight: 'calc(100vh - 200px)' }}> */}
             {/* <Routes> */}
-              <Route path="/trade" element={<HomePage />} />
+              {/* <Route path="/trade" element={<HomePage />} /> */}
+              <Route
+          path="/trade"
+          element={
+            <ProtectedRoute user={currentUser}>
+              <HomePage />
+            </ProtectedRoute>
+          }
+        />
               {/* <Route path="/trade" element={<ComingSoonPage />} /> */}
               <Route path="/products" element={<ProductsPage />} />
               <Route path="/product/:id" element={<ProductDetailPage />} />
               <Route path="/cart" element={<CartPage />} />
               <Route path="/wishlist" element={<WishlistPage />} />
               <Route path="/checkout" element={<CheckoutPage />} />
+              <Route path="/test" element={<PharmacyFinder />} />
             {/* </Routes> */}
           {/* </main> */}
           {/* <Footer /> */}
