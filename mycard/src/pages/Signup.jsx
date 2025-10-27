@@ -1042,11 +1042,11 @@ fetch("/api/resource/User", requestOptions)
             />
             <label htmlFor="terms" className="select-none">
               I agree to the{" "}
-              <a href="#" className="font-semibold hover:underline">
+              <a target="_blank" href="/mycard/terms_and_condition" className="font-semibold hover:underline">
                 Terms and Conditions
               </a>{" "}
               and{" "}
-              <a href="#" className="font-semibold hover:underline">
+              <a target="_blank" href="/mycard/terms_and_condition" className="font-semibold hover:underline">
                 Privacy Policy
               </a>
             </label>

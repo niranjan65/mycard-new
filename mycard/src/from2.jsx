@@ -738,7 +738,7 @@ const Form2 = memo(({ formData, handleChange, countries, spouseData, setSpouseDa
                     <thead>
                       <tr style={{ backgroundColor: '#f5f5f5' }}>
                         <th style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'left' }}>Name</th>
-                        <th style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'left' }}>CRM ID</th>
+                        <th style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'left' }}>CBM ID</th>
                         <th style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'left' }}>Age</th>
                         <th style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'center' }}>Action</th>
                       </tr>
@@ -826,7 +826,7 @@ const Form2 = memo(({ formData, handleChange, countries, spouseData, setSpouseDa
                       <tr style={{ backgroundColor: '#f5f5f5' }}>
                         <th style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'left' }}>Children Name</th>
                         <th style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'left' }}>Father's/Mother's Name</th>
-                        <th style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'left' }}>CRM ID</th>
+                        <th style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'left' }}>CBM ID</th>
                         <th style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'left' }}>Age</th>
                         <th style={{ padding: '12px', border: '1px solid #ddd', textAlign: 'center' }}>Action</th>
                       </tr>

@@ -1075,7 +1075,7 @@ const Sidebar = () => {
         redirect: "follow"
       };
 
-      const response = await fetch("https://lblerp.anantdv.com/api/method/erpnext.accounts.party.get_dashboard_info", requestOptions);
+      const response = await fetch("https://lblerp.anantdv.com/api/method/erpnext.accounts.party.get_dashboard_info_m", requestOptions);
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);

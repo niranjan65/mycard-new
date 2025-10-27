@@ -34,6 +34,7 @@ import { COLORS } from './constants/colors'
 import ComingSoon from './ComingSoon'
 import ComingSoonPage from './pages/ComingSoonPage'
 import PharmacyFinder from './pages/PharmacyFinder'
+import TermsAndConditions from './pages/TermsAndConditions'
 
 // const Layout = () => {
 //   const currentUser = Cookies.get('user_id');
@@ -243,7 +244,8 @@ const currentUser = Cookies.get('user_id');
               <Route path="/cart" element={<CartPage />} />
               <Route path="/wishlist" element={<WishlistPage />} />
               <Route path="/checkout" element={<CheckoutPage />} />
-              <Route path="/test" element={<PharmacyFinder />} />
+              <Route path="/get_medicine" element={<PharmacyFinder />} />
+              
             {/* </Routes> */}
           {/* </main> */}
           {/* <Footer /> */}
@@ -297,6 +299,7 @@ if (import.meta.env.DEV) {
           {/* Auth routes without Sidebar & Navbar */}
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/terms_and_condition" element={<TermsAndConditions />} />
 
           {/* Main app layout with Sidebar + Navbar */}
           <Route

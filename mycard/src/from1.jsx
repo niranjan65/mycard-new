@@ -1309,7 +1309,7 @@ const Form1 = memo(({
 </div>
 
 
-<div className="section-card">
+{/* <div className="section-card">
   <div className="section-header">
     <div className="section-icon">🖼️</div>
     <h3 className="section-title">Custom CBM ID</h3>
@@ -1326,7 +1326,7 @@ const Form1 = memo(({
             />
           </div>
 
-</div>
+</div> */}
 
 
       {/* --- Basic Information (Usually Hidden) --- */}
@@ -1354,7 +1354,7 @@ const Form1 = memo(({
               value={formData.status}
               onChange={e => handleChange("status", e.target.value)}
             >
-              <option>Drafted</option>
+              
               <option>Active</option>
               <option>Inactive</option>
               <option>Suspended</option>
@@ -1482,13 +1482,14 @@ const Form1 = memo(({
           </div> */}
 
           <div className="field-wrapper">
-            <label className="field-label required">Blood Group</label>
+            <label className="field-label">Blood Group</label>
             <select
               className={selectClass('blood_group')}
               value={formData.blood_group}
               onChange={e => handleChange("blood_group", e.target.value)}
             >
               <option value="" disabled>Select</option>
+              <option value=""></option>
               <option value="A Positive">A Positive</option>
               <option value="A Negative">A Negative</option>
               <option value="B Positive">B Positive</option>

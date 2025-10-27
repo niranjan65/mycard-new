@@ -209,7 +209,7 @@ const ERPForm = () => {
                   <option>Inactive</option>
                   <option>Suspended</option>
                   <option>Rejected</option>
-                  <option>Drafted</option>
+                  {/* <option>Drafted</option> */}
                 </select>
               </div>
 

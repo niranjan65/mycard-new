@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import { Pill, Calendar, User, FileText, Clock, Activity, Clipboard } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const PrescriptionComponent = ({ prescriptions = [], selectedPrescription, setSelectedPrescription }) => {
+
+  const navigate = useNavigate()
   
 
   console.log("selected Prescription....", selectedPrescription)
@@ -234,7 +237,7 @@ const PrescriptionComponent = ({ prescriptions = [], selectedPrescription, setSe
               </div>
 
               <div className='w-full flex items-center justify-center '>
-                <button className='py-3 px-5 bg-blue-200 rounded-md font-medium cursor-pointer'>Get Medicine</button>
+                <button onClick={() => navigate("/get_medicine")} className='py-3 px-5 bg-blue-200 rounded-md font-medium cursor-pointer'>Get Medicine</button>
               </div>
 
               

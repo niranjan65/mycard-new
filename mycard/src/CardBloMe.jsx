@@ -566,7 +566,7 @@ const CardBloMe = () => {
     frequency_of_smoking: 'Never',
     beteinut: 'No',
     frequency_of_beteinut: 'Never',
-    custom_id: ''
+    // custom_id: ''
   });
 
   const handleChange = useCallback((field, value) => {
@@ -605,7 +605,7 @@ const CardBloMe = () => {
           country: page1Data.country || 'Papua New Guinea',
           country1: page1Data.country1 || 'Papua New Guinea',
           country2: page1Data.country2 || 'Papua New Guinea',
-          custom_id: page1Data?.custom_id || '',
+          // custom_id: page1Data?.custom_id || '',
           office_contact_no_country_code: page1Data.office_contact_no_country_code ? `+${page1Data.office_contact_no_country_code}` : '+675',
           personal_contact_no_country_code: page1Data.personal_contact_no_country_code ? `+${page1Data.personal_contact_no_country_code}` : '+675',
           personal_email_address: page1Data.personal_email_address || '',
@@ -773,7 +773,6 @@ const CardBloMe = () => {
           formData?.last_name?.trim() &&
           formData?.gender &&
           formData?.date_of_birth &&
-          formData?.blood_group &&
           formData?.resident_status
         );
       case 2:
@@ -793,8 +792,6 @@ const CardBloMe = () => {
         );
       case 4:
         return (
-          formData.company.trim() &&
-          formData.department.trim() &&
           formData.alcohol &&
           formData.smoking &&
           formData.frequency_of_smoking &&
@@ -1177,7 +1174,7 @@ const CardBloMe = () => {
       district1: formData.district1,
       province1: formData.province1,
       country1: formData.country1,
-      custom_id: parsedData?.custom_id,
+      // custom_id: parsedData?.custom_id,
       po_box1: formData.po_box1,
       postal_code1: formData.postal_code1,
       personal_contact_no_country_code: parseInt(formData.personal_country_code.replace('+', ''), 10),
