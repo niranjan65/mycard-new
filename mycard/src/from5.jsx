@@ -1,7 +1,15 @@
 import React, { memo } from 'react';
 
 // Form 5 Component (Final Review) - Memoized
-const Form5 = memo(({ formData }) => (
+const Form5 = memo(({ formData }) => {
+  const formatDisplayDate = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }); 
+  };
+
+  return (
+  
   <div>
     <div className="section-card">
       <div className="section-header">
@@ -22,7 +30,8 @@ const Form5 = memo(({ formData }) => (
           </div>
           <div className="review-item">
             <span className="review-label">Date of Birth:</span>
-            <span className="review-value">{formData.date_of_birth || "Not provided"}</span>
+            {/* <span className="review-value">{formData.date_of_birth || "Not provided"}</span> */}
+            <span className="review-value">{formatDisplayDate(formData.date_of_birth) || "Not provided"}</span>
           </div>
           <div className="review-item">
             <span className="review-label">Blood Group:</span>
@@ -167,6 +176,8 @@ const Form5 = memo(({ formData }) => (
       </div>
     </div>
   </div>
-));
+)
+}
+  );
 
 export default Form5;

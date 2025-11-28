@@ -27,8 +27,8 @@ const CardBloMe = () => {
   const [hasSaved, setHasSaved] = useState({ 1: false, 2: false, 3: false, 4: false });
   const [isFormSubmitted, setIsFormSubmitted] = useState(false);
   const [isupdating, setisupdating] = useState(false)
-  const [profilePicture, setProfilePicture] = useState(null); // holds the file or URL
-  const [profileUrl, setProfileUrl] = useState(''); // preview URL
+  const [profilePicture, setProfilePicture] = useState(null); 
+  const [profileUrl, setProfileUrl] = useState(''); 
 
   const [spouseData, setSpouseData] = useState([]);
   const [childrenData, setChildrenData] = useState([]);
@@ -95,14 +95,14 @@ const CardBloMe = () => {
       setProfileUrl(fileDoc.file_url);
       setProfilePicture(null);
       
-      // Update the User document
+      
       await updateDoc('User', user, { user_image: fileDoc.file_url });
       
-      // Update the cookie to reflect the new profile image
+      
       Cookies.set('user_image', fileDoc.file_url, { 
-        expires: 30, // Set expiration as needed (30 days in this example)
-        secure: true, // Use secure flag if using HTTPS
-        sameSite: 'strict' // Add sameSite for security
+        expires: 30, 
+        secure: true, 
+        sameSite: 'strict' 
       });
       
       alert("Profile picture uploaded successfully!");
@@ -554,6 +554,7 @@ const CardBloMe = () => {
     supervisor_position: '',
     supervisor_contact: '',
     supervisor_email: '',
+    server_location: 'Others',
     hr_manager_name: '',
     hr_manager_contact: '',
     hr_manager_email_address: '',
@@ -618,6 +619,7 @@ const CardBloMe = () => {
           portion_lot_no: page1Data.portion_lot_no || '',
           po_box: page1Data.po_box || '',
           po_box1: page1Data.po_box1 || '',
+          server_location: page1Data?.server_location || '',
           office_email: page1Data.office_email || '',
           place_of_birth: page1Data.place_of_birth || 'Hospital',
           village1: page1Data.village1 || '',
@@ -944,6 +946,7 @@ const CardBloMe = () => {
       country2: formData.country2,
       location: formData.location,
       location1: formData.location1,
+      server_location: formData?.server_location
     };
 
     const response1 = await fetch(`/api/resource/Card Blo Me Page1/${existingDocs.page1}`, {
@@ -1191,6 +1194,7 @@ const CardBloMe = () => {
       country2: formData.country2,
       location: formData.location,
       location1: formData.location1,
+      server_location: formData.server_location
     };
 
     const currentUser = Cookies.get('user_id');

@@ -1170,6 +1170,16 @@ const Form1 = memo(({
     }
   };
 
+  const handleFormatChange = (e) => {
+
+  }
+
+  const formatDisplayDate = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }); 
+  };
+
   return (
     <div>
 
@@ -1383,6 +1393,8 @@ const Form1 = memo(({
             </>
           )}
         </div>
+
+        
       </div>
 
       {/* --- Personal Health Declaration --- */}
@@ -1392,6 +1404,18 @@ const Form1 = memo(({
           <h3 className="section-title">Personal Health Declaration</h3>
         </div>
         <div className="fields-grid">
+          <div className="field-wrapper">
+            <label className="field-label">Server Location</label>
+            <select
+              required
+              className={selectClass('server_location')}
+              value={formData.server_location}
+              onChange={e => handleChange("server_location", e.target.value)}
+            >
+              <option value="Others">Others</option>
+              <option value="POM">POM</option>
+            </select>
+          </div>
           <div className="field-wrapper">
             <label className="field-label required">Title</label>
             <select
@@ -1455,8 +1479,12 @@ const Form1 = memo(({
               type="date"
               className={inputClass('date_of_birth')}
               value={formData.date_of_birth}
-              onChange={e => handleChange("date_of_birth", e.target.value)}
+              onChange={e => {
+                handleFormatChange(e)
+                handleChange("date_of_birth", e.target.value)
+              }}
             />
+            
             {errMsg('date_of_birth')}
           </div>
           {/* <div className="field-wrapper">
@@ -1516,6 +1544,8 @@ const Form1 = memo(({
             {errMsg('resident_status')}
           </div>
         </div>
+
+        
       </div>
 
       {/* --- Current Address --- */}

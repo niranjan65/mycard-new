@@ -5,6 +5,12 @@ app_description = "This is mycard"
 app_email = "niranjan.ks@anantdv.com"
 app_license = "MIT"
 
+
+email_templates = {
+    "custom_password_reset": "your_app/templates/emails/custom_password_reset.html"
+}
+
+
 # Includes in <head>
 # ------------------
 

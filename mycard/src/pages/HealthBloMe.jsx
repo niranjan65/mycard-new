@@ -20,6 +20,7 @@ import LocationModal from '@/components/HealthBloMe/LocationModal';
 import PharmacyFinder from './PharmacyFinder';
 import PrescriptionModal from '@/components/HealthBloMe/PrescriptionModal';
 import LabTestPortal from '@/components/HealthBloMe/LabTestPortal';
+import ComingSoonPage from './ComingSoonPage';
 
 const HealthBloMe = () => {
   const [showPatientDetails, setShowPatientDetails] = useState(false);
@@ -787,7 +788,8 @@ const HealthBloMe = () => {
 
         &&
 
-        <PrescriptionModal activeMainTab={activeMainTab} setActiveMainTab={setActiveMainTab} selectedPrescription={selectedPrescription} setSelectedPrescription={setSelectedPrescription} prescriptions={medicationData}   />
+        // <PrescriptionModal activeMainTab={activeMainTab} setActiveMainTab={setActiveMainTab} selectedPrescription={selectedPrescription} setSelectedPrescription={setSelectedPrescription} prescriptions={medicationData}   />
+        <ComingSoonPage />
       }
 
       {
@@ -795,7 +797,8 @@ const HealthBloMe = () => {
 
         &&
 
-        <LabTestPortal  />
+        // <LabTestPortal  />
+        <ComingSoonPage />
       }
 
       
